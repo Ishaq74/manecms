@@ -958,57 +958,50 @@ raison écrite. Pour les lister : `php vendor/bin/pest --display-skipped`.
 
 ## 10. CI (`.github/workflows/tests.yml`)
 
-déclenche sur : push sur `main`, et toute pull request.
+Declenche sur : push sur `main`, et toute pull request.
+
+Workflow actuel :
 
 ```yaml
-php-version: '8.3'      # ❌ incohérent : PHPUnit 13 / Symfony 8 exigent >= 8.4.1
+php-version: '8.4'         # PHP 8.4.1 minimum requis (PHPUnit 13 / Symfony 8)
 node-version: '22'
-run: composer setup     # composer install + .env + key:generate + migrate + pnpm install + build
-run: composer ci:check  # = composer test = quality + test:unit + test:feature
+run: |
+  composer install
+  cp .env.example .env
+  php artisan key:generate
+  pnpm install
+  pnpm run build
+run: php bin/check.php --full   # les 6 stages, dont type-coverage
 ```
 
-### 10.1 Ce qui est casse
+### 10.1 Ce qui a ete corrige
 
-1. **`php-version: '8.3'` → `composer setup` échoué** au `composer install`
-   (`Your Composer dependencies require a PHP version ">= 8.4.1"`).
-   **Correction : `php-version: '8.4'`**.
+1. **`php-version: '8.3'` -> `'8.4'`.** Avec 8.3, `composer install` echouait sur
+   `Your Composer dependencies require a PHP version ">= 8.4.1"`.
 
-2. **`composer setup` lance `php artisan migrate --force`** → tente de migrer **Postgres**
-   (`.env` copie depuis `.env.example` → `DB_CONNECTION=pgsql`) sans serveur Postgres sur le runner
-   `ubuntu-latest`. La CI plante la aussi.
-   **Correction** : ne pas migrer pendant `setup` (`RefreshDatabase` s'en charge sur SQLite
-   en mémoire), ou ajouter un service Postgres.
+2. **`composer setup` remplace par ses etapes listees une par une, sans `migrate`.**
+   Le script `composer setup` lance `php artisan migrate --force` vers Postgres
+   (`.env.example` -> `DB_CONNECTION=pgsql`) et il n'y a pas de serveur Postgres sur le runner
+   `ubuntu-latest`. Le script lui-meme est **conserve tel quel** : en local il doit toujours
+   creer ta base.
 
-3. `coverage: none` → aucun driver de coverage, cohérent avec l'absence de Xdebug (§7).
+   Pourquoi les tests n'en ont pas besoin : `phpunit.xml` force `sqlite` + `:memory:` (§5.2),
+   et `RefreshDatabase` rejoue les migrations tout seul sur une base jetable.
 
-4. `phpunit.xml` ne déclare que `Unit` et `Feature` → `composer test` est cohérent de ce point de vue.
+3. **`composer ci:check` remplace par `php bin/check.php --full`.** Meme ordre que
+   la commande locale, arret au premier echec, resume final. `composer ci:check`
+   (-> `composer quality`) lancait `quality:phpstan --level=max`, bien plus strict que
+   le `level: 7` de `phpstan.neon`.
 
-5. `composer ci:check` lance `composer quality` qui inclut `quality:phpstan` (`--level=max`) et
-   `quality:rector` (sans `rector.php`). Le niveau `max` est beaucoup plus strict que le `level: 7`
-   de `phpstan.neon` → probablement des hundreds d'erreurs.
+4. `coverage: none` -> aucun driver de coverage, coherent avec l'absence de Xdebug (§7).
 
-### 10.2 Workflow CI corrige minimal
+### 10.2 Ce que la CI ne fait pas
 
-```yaml
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.4'
-          extensions: pdo_sqlite, sqlite3
-          coverage: none
-
-      - name: Setup Node
-        uses: actions/setup-node@v5
-        with:
-          node-version: '22'
-
-      # .env sans migration Postgres : RefreshDatabase gère SQLite en mémoire
-      - name: prépare test environment
-        run: cp .env.example .env && php artisan key:generate
-
-      - name: Run quality gate
-        run: php bin/check.php --full
-```
+- Pas de `migrate` (voir ci-dessus)
+- Pas de couverture de code (pas de Xdebug)
+- Pas de tests navigateur (`tests/Browser` n'existe pas, §4.9)
+- Pas de `composer test:types` : le stage `type-coverage` de `bin/check.php` fait le meme
+  travail, avec le bon `memory_limit`
 
 ---
 
@@ -1083,7 +1076,8 @@ service ajoute.
 | modèle `Searchable` qui plante | `SCOUT_DRIVER=meilisearch` non écrase | `SCOUT_DRIVER=null` + `Searchable::fake()` |
 | Upload qui tente S3 | `FILESYSTEM_DISK=s3` non écrase | `Storage::fake('s3')` ou `FILESYSTEM_DISK=local` |
 | `--parallel` plus lent que séquentiel | coût de démarrage de ParaTest | ne l'utiliser qu'au-dela de ~500 tests |
-| CI rouge sur `composer setup` | `php-version: '8.3'` dans le workflow | passer a `'8.4'` (§10.1) |
+| CI rouge sur `composer install` | `php-version: '8.3'` dans le workflow | passé à `'8.4'` (§10.1) |
+| CI rouge sur `migrate` | pas de Postgres sur le runner | `migrate` retiré de la CI, conservé en local (§10.1) |
 
 ---
 
