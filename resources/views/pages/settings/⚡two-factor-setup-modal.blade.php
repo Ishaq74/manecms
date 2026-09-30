@@ -152,10 +152,10 @@ new class extends Component {
     }
 }; ?>
 
-<flux:modal
-    name="two-factor-setup-modal"
-    class="max-w-md md:min-w-md"
-    @close="closeModal"
+<x-modal
+    id="two-factor-setup-modal"
+    size="md"
+    x-on:close="$wire.closeModal()"
 >
         <div class="space-y-6">
             <div class="flex flex-col items-center space-y-4">
@@ -173,13 +173,20 @@ new class extends Component {
                             @endfor
                         </div>
 
-                        <flux:icon.qr-code class="relative z-20 dark:text-accent-foreground"/>
+                        <svg class="relative z-20 size-6 dark:text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
+                        </svg>
                     </div>
                 </div>
 
                 <div class="space-y-2 text-center">
-                    <flux:heading size="lg">{{ $this->modalConfig['title'] }}</flux:heading>
-                    <flux:text>{{ $this->modalConfig['description'] }}</flux:text>
+                    <h2 class="text-lg font-medium tracking-tight text-zinc-800 dark:text-white">
+                        {{ $this->modalConfig['title'] }}
+                    </h2>
+
+                    <p class="text-sm text-zinc-500 dark:text-zinc-400">
+                        {{ $this->modalConfig['description'] }}
+                    </p>
                 </div>
             </div>
 
@@ -190,52 +197,45 @@ new class extends Component {
                         x-data
                         x-init="$nextTick(() => $el.querySelector('input')?.focus())"
                     >
-                        <flux:otp
-                            name="code"
+                        <x-pin
                             wire:model="code"
-                            length="6"
-                            label="OTP Code"
-                            label:sr-only
+                            :length="6"
+                            :label="__('OTP Code')"
                             class="mx-auto"
+                            sr-only
                         />
                     </div>
 
                     <div class="flex items-center space-x-3">
-                        <flux:button
-                            variant="outline"
+                        <x-button
+                            outline
                             class="flex-1"
                             wire:click="resetVerification"
-                        >
-                            {{ __('Back') }}
-                        </flux:button>
+                            :text="__('Back')"
+                        />
 
-                        <flux:button
-                            variant="primary"
+                        <x-button
                             class="flex-1"
                             wire:click="confirmTwoFactor"
                             x-bind:disabled="$wire.code.length < 6"
-                        >
-                            {{ __('Confirm') }}
-                        </flux:button>
+                            :text="__('Confirm')"
+                        />
                     </div>
                 </div>
             @else
                 @error('setupData')
-                    <flux:callout variant="danger" icon="x-circle" heading="{{ $message }}"/>
+                    <x-alert color="red" icon="x-circle" :title="$message" />
                 @enderror
 
                 <div class="flex justify-center">
                     <div class="relative w-64 overflow-hidden border rounded-lg border-stone-200 dark:border-stone-700 aspect-square">
                         @empty($qrCodeSvg)
                             <div class="absolute inset-0 flex items-center justify-center bg-white dark:bg-stone-700 animate-pulse">
-                                <flux:icon.loading/>
+                                <x-spinner />
                             </div>
                         @else
                             <div x-data class="flex items-center justify-center h-full p-4">
-                                <div
-                                    class="bg-white p-3 rounded"
-                                    :style="($flux.appearance === 'dark' || ($flux.appearance === 'system' && $flux.dark)) ? 'filter: invert(1) brightness(1.5)' : ''"
-                                >
+                                <div class="bg-white p-3 rounded dark:invert dark:brightness-150">
                                     {!! $qrCodeSvg !!}
                                 </div>
                             </div>
@@ -244,14 +244,12 @@ new class extends Component {
                 </div>
 
                 <div>
-                    <flux:button
+                    <x-button
+                        block
                         :disabled="$errors->has('setupData')"
-                        variant="primary"
-                        class="w-full"
                         wire:click="showVerificationIfNecessary"
-                    >
-                        {{ $this->modalConfig['buttonText'] }}
-                    </flux:button>
+                        :text="$this->modalConfig['buttonText']"
+                    />
                 </div>
 
                 <div class="space-y-4">
@@ -280,7 +278,7 @@ new class extends Component {
                         <div class="flex items-stretch w-full border rounded-xl dark:border-stone-700">
                             @empty($manualSetupKey)
                                 <div class="flex items-center justify-center w-full p-3 bg-stone-100 dark:bg-stone-700">
-                                    <flux:icon.loading variant="mini"/>
+                                    <x-spinner xs />
                                 </div>
                             @else
                                 <input
@@ -294,12 +292,8 @@ new class extends Component {
                                     @click="copy()"
                                     class="px-3 transition-colors border-l cursor-pointer border-stone-200 dark:border-stone-600"
                                 >
-                                    <flux:icon.document-duplicate x-show="!copied" variant="outline"></flux:icon>
-                                    <flux:icon.check
-                                        x-show="copied"
-                                        variant="solid"
-                                        class="text-green-500"
-                                    ></flux:icon>
+                                    <x-icon name="clipboard-document" x-show="!copied" />
+                                    <x-icon name="check" x-show="copied" class="text-green-500" />
                                 </button>
                             @endempty
                         </div>
@@ -307,4 +301,4 @@ new class extends Component {
                 </div>
             @endif
         </div>
-</flux:modal>
+</x-modal>

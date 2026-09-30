@@ -49,20 +49,27 @@
                 <div class="space-y-5 text-center">
                     <div x-show="!showRecoveryInput">
                         <div class="flex items-center justify-center my-5" x-ref="otp">
-                            <flux:otp
-                                x-model="code"
-                                length="6"
-                                name="code"
-                                label="OTP Code"
-                                label:sr-only
-                                class="mx-auto"
-                             />
+                            <input type="hidden" name="code" x-model="code" />
+
+                            <template x-for="index in 6" :key="index">
+                                <input
+                                    type="text"
+                                    inputmode="numeric"
+                                    maxlength="1"
+                                    :autocomplete="index === 1 ? 'one-time-code' : 'off'"
+                                    aria-label="{{ __('Authentication code digit') }} {{ index }}"
+                                    class="h-12 w-12 rounded-lg border border-zinc-300 text-center text-lg font-semibold text-zinc-800 focus:border-zinc-500 focus:ring-2 focus:ring-zinc-500 focus:outline-hidden dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
+                                    x-model="code[ index - 1 ]"
+                                    x-on:input="$el.value = $el.value.replace(/\D/g, '').slice(-1)"
+                                    x-on:keydown.backspace.prevent="if (! $el.value && index > 1) { $root.querySelectorAll('input')[ index - 2 ].focus() }"
+                                />
+                            </template>
                         </div>
                     </div>
 
                     <div x-show="showRecoveryInput">
                         <div class="my-5">
-                            <flux:input
+                            <x-input
                                 type="text"
                                 name="recovery_code"
                                 x-ref="recovery_code"
@@ -73,19 +80,13 @@
                         </div>
 
                         @error('recovery_code')
-                            <flux:text color="red">
+                            <p class="text-sm text-red-600 dark:text-red-400">
                                 {{ $message }}
-                            </flux:text>
+                            </p>
                         @enderror
                     </div>
 
-                    <flux:button
-                        variant="primary"
-                        type="submit"
-                        class="w-full"
-                    >
-                        {{ __('Continue') }}
-                    </flux:button>
+                    <x-button submit block :text="__('Continue')" />
                 </div>
 
                 <div class="mt-5 space-x-0.5 text-sm leading-5 text-center">
