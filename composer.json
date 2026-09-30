@@ -13,10 +13,17 @@
         "laravel/chisel": "^0.1.0",
         "laravel/fortify": "^1.37.2",
         "laravel/framework": "^13.17",
+        "laravel/horizon": "^5.50",
+        "laravel/reverb": "^1.12",
+        "laravel/sanctum": "^4.3",
+        "laravel/scout": "^11.8",
         "laravel/tinker": "^3.0",
+        "league/flysystem-aws-s3-v3": "^3.35",
         "livewire/blaze": "^1.0",
         "livewire/flux": "^2.13.1",
-        "livewire/livewire": "^4.1"
+        "livewire/livewire": "^4.1",
+        "meilisearch/meilisearch-php": "^1.17",
+        "tallstackui/tallstackui": "^4.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.24",
@@ -28,8 +35,21 @@
         "laravel/sail": "^1.53",
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.9.3",
-        "pestphp/pest": "^4.7",
-        "pestphp/pest-plugin-laravel": "^4.1"
+        "nunomaduro/phpinsights": "^2.13",
+        "orchestra/testbench": "^11.0",
+        "pestphp/pest": "^5.0",
+        "pestphp/pest-plugin-agent": "^5.0",
+        "pestphp/pest-plugin-browser": "^5.0",
+        "pestphp/pest-plugin-drift": "^5.0",
+        "pestphp/pest-plugin-laravel": "^5.0",
+        "pestphp/pest-plugin-livewire": "^5.0",
+        "pestphp/pest-plugin-phpstan": "^5.0",
+        "pestphp/pest-plugin-stressless": "^5.0",
+        "pestphp/pest-plugin-type-coverage": "^5.0",
+        "phpstan/phpstan": "^2.0",
+        "phpstan/phpstan-deprecation-rules": "^2.0",
+        "phpstan/phpstan-strict-rules": "^2.0",
+        "rector/rector": "^2.0"
     },
     "autoload": {
         "psr-4": {
@@ -49,12 +69,12 @@
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
             "@php artisan key:generate",
             "@php artisan migrate --force",
-            "npm install",
-            "npm run build"
+            "pnpm install",
+            "pnpm run build"
         ],
         "dev": [
             "Composer\\Config::disableProcessTimeout",
-            "npx concurrently -c \"#93c5fd,#c4b5fd,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"npm run dev\" --names='server,queue,vite'"
+            "pnpm exec concurrently -c \"#93c5fd,#c4b5fd,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"pnpm run dev\" --names='server,queue,vite'"
         ],
         "lint": [
             "pint --parallel"
@@ -69,11 +89,30 @@
         "types:check": [
             "phpstan analyse"
         ],
+        "quality": [
+            "@quality:format",
+            "@quality:rector",
+            "@quality:phpstan",
+            "@quality:insights"
+        ],
+        "quality:format": "@php vendor/bin/pint --test",
+        "quality:rector": "@php vendor/bin/rector process --dry-run",
+        "quality:phpstan": "@php vendor/bin/phpstan analyse --level=max",
+        "quality:insights": "@php artisan insights",
+        "test:types": "@php vendor/bin/pest --type-coverage --min=100",
+        "test:architecture": "@php vendor/bin/pest tests/Architecture",
+        "test:unit": "@php vendor/bin/pest tests/Unit --parallel",
+        "test:feature": "@php vendor/bin/pest tests/Feature --parallel",
+        "test:integration": "@php vendor/bin/pest tests/Integration --parallel",
+        "test:security": "@php vendor/bin/pest tests/Security --parallel",
+        "test:browser": "@php vendor/bin/pest tests/Browser --parallel",
+        "test:concurrency": "@php vendor/bin/pest tests/Concurrency",
+        "test:contract": "@php vendor/bin/pest tests/Contract",
+        "test:performance": "@php vendor/bin/pest tests/Performance",
         "test": [
-            "@php artisan config:clear --ansi",
-            "@lint:check",
-            "@types:check",
-            "@php artisan test"
+            "@composer quality",
+            "@composer test:unit",
+            "@composer test:feature"
         ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
@@ -109,7 +148,8 @@
         "sort-packages": true,
         "allow-plugins": {
             "pestphp/pest-plugin": true,
-            "php-http/discovery": true
+            "php-http/discovery": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true
         }
     },
     "minimum-stability": "stable",

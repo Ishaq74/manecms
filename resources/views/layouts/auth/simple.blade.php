@@ -25,5 +25,6 @@
         @endpersist
 
         @fluxScripts
+        @livewireScripts
     </body>
 </html>
