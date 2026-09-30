@@ -82,6 +82,22 @@
         "lint:check": [
             "pint --parallel --test"
         ],
+        "check": [
+            "Composer\\Config::disableProcessTimeout",
+            "@php bin/check.php"
+        ],
+        "check:fix": [
+            "Composer\\Config::disableProcessTimeout",
+            "@php bin/check.php --fix"
+        ],
+        "check:dirty": [
+            "Composer\\Config::disableProcessTimeout",
+            "@php bin/check.php --dirty"
+        ],
+        "check:full": [
+            "Composer\\Config::disableProcessTimeout",
+            "@php bin/check.php --full"
+        ],
         "ci:check": [
             "Composer\\Config::disableProcessTimeout",
             "@test"
