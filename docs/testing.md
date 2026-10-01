@@ -201,7 +201,7 @@ Not run: rector, pest, insights, type-coverage
 - Un stage dont le fichier de configuration manque affiche un `WARNING` explicite
   (actuellement `config/insights.php`), pour éviter un faux vert.
 
-### 3.4 état actuel du projet (30/09/2026)
+### 3.4 état actuel du projet
 
 | Stage | résultat | détail |
 |---|---|---|
@@ -212,7 +212,8 @@ Not run: rector, pest, insights, type-coverage
 | `insights` | ✅ **PASS** | grâce à `config/insights.php` (§5.6) |
 | `type-coverage` | ✅ **PASS** | 96,9 % |
 
-**Les 6 stages passent.** La suite complète prend ~30 s.
+**Les 6 stages passent.** La suite complète prend ~39 s (`insights` est le plus lent, il peut monter
+à 18 s selon la machine ; `--full` seul rajoute ~20 s).
 
 Ce qui avait été corrigé pour y arriver :
 

@@ -1,4 +1,4 @@
-<x-layouts::app :title="__('Home')">
+<x-layouts::guest :title="__('Home')">
     <div class="py-12 sm:py-20">
         <div class="mx-auto max-w-2xl text-center">
             <h1 class="text-4xl font-semibold tracking-tight text-zinc-900 sm:text-5xl dark:text-white">
@@ -22,4 +22,4 @@
             </div>
         </div>
     </div>
-</x-layouts::app>
+</x-layouts::guest>
