@@ -6,7 +6,7 @@ projets, RH, automatisation et IA, réunis sur un même socle multi-tenant.
 ## Documents de référence
 
 | Document | Rôle |
-|:--|:--|
+|:---------|:------|
 | [todo/todo.md](todo/todo.md) | Cahier des charges normatif. Décisions produit provisoires : §0.1 |
 | [todo/roadmap.md](todo/roadmap.md) | Feuille de route : passes, Definition of Done, traçabilité |
 | [todo/pass-01-tenancy-core.md](todo/pass-01-tenancy-core.md) | Spécification détaillée de la passe en cours |

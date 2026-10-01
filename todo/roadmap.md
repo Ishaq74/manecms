@@ -110,7 +110,7 @@ Copier dans `todo/pass-XX-<slug>.md` :
 
 | ID | Passe | Train | Tier | Dépend de | Statut |
 |:--|:--|:--|:--|:--|:--|
-| P00 | Mise en conformité du socle | V1.0 | STANDARD | — | à faire |
+| P00 | Mise en conformité du socle | V1.0 | STANDARD | — | en cours (CI à valider) |
 | P01 | Tenancy core | V1.0 | VITAL | P00 | spec prête |
 | P02 | Isolation PostgreSQL (RLS) | V1.0 | VITAL | P01 | à faire |
 | P03 | Audit, corrélation, erreurs typées | V1.0 | VITAL | P02 | à faire |
@@ -194,25 +194,25 @@ Copier dans `todo/pass-XX-<slug>.md` :
 **Objectif.** Aligner le socle existant sur le cahier avant tout code métier.
 
 **Livrables**
-- [ ] `.env.example` : `CACHE_STORE=database`, `QUEUE_CONNECTION=database`, `FILESYSTEM_DISK=local`, `BROADCAST_CONNECTION=log` ; variables Redis, Meilisearch, S3, Reverb commentées « activées par leur passe » (§4.2)
-- [ ] `.env` local vérifié sur les mêmes valeurs (non commité)
-- [ ] `composer.json` : `name` et `description` du projet (`manecms/manecms`) au lieu du starter kit
-- [ ] Script Composer `dev` sans `php artisan serve` (le site est servi par Herd)
-- [ ] Base `manecms_testing` créée ; `phpunit.xml` passe à `pgsql` (§299.1) ; suite verte sur PostgreSQL
-- [ ] `APP_LOCALE=fr`, `APP_FALLBACK_LOCALE=en`, `APP_FAKER_LOCALE=fr_FR` ; `lang/fr.json` couvre auth, settings et shell existants
-- [ ] PHPStan `level: max` sans baseline ; erreurs corrigées (§210)
-- [ ] `bin/check.php` : type coverage avec `--min=100` (§209)
-- [ ] Suite `Architecture` déclarée dans `phpunit.xml` : presets Pest `php`, `security`, `laravel` ; aucune référence à Flux dans `composer.json`, `composer.lock` et les sources (§284)
-- [ ] Registre de propriété des tables `config/domains.php` + test : toute table de la base appartient à un contexte (§371)
-- [ ] Groupes Pest conventionnels (§292)
-- [ ] CI GitHub Actions : `composer validate`, `composer audit`, Pint, Rector dry-run, PHPStan, tests sur service PostgreSQL, type coverage, `pnpm run build` (§288, sous-ensemble V1.0)
-- [ ] `docs/adr/0000-template.md` (§287) et `docs/adr/0001-modular-monolith.md` (§286)
-- [ ] Modèle de PR `.github/pull_request_template.md` reprenant §396 à §399
+- [x] `.env.example` : `CACHE_STORE=database`, `QUEUE_CONNECTION=database`, `FILESYSTEM_DISK=local`, `BROADCAST_CONNECTION=log` ; variables Redis, Meilisearch, S3, Reverb commentées « activées par leur passe » (§4.2)
+- [x] `.env` local vérifié sur les mêmes valeurs (non commité)
+- [x] `composer.json` : `name` et `description` du projet (`manecms/manecms`) au lieu du starter kit
+- [x] Script Composer `dev` sans `php artisan serve` (le site est servi par Herd)
+- [x] Base `manecms_testing` créée ; `phpunit.xml` passe à `pgsql` (§299.1) ; suite verte sur PostgreSQL
+- [x] `APP_LOCALE=fr`, `APP_FALLBACK_LOCALE=en`, `APP_FAKER_LOCALE=fr_FR` ; `lang/fr.json` couvre auth, settings et shell existants
+- [x] PHPStan `level: max` sans baseline ; erreurs corrigées (§210)
+- [x] `bin/check.php` : type coverage avec `--min=100` (§209)
+- [x] Suite `Architecture` déclarée dans `phpunit.xml` : presets Pest `php`, `security`, `laravel` ; aucune référence à Flux dans `composer.json`, `composer.lock` et les sources (§284)
+- [x] Registre de propriété des tables `config/domains.php` + test : toute table de la base appartient à un contexte (§371)
+- [x] Groupes Pest conventionnels (§292)
+- [x] CI GitHub Actions : `composer validate`, `composer audit`, Pint, Rector dry-run, PHPStan, tests sur service PostgreSQL, type coverage, `pnpm run build` (§288, sous-ensemble V1.0)
+- [x] `docs/adr/0000-template.md` (§287) et `docs/adr/0001-modular-monolith.md` (§286)
+- [x] Modèle de PR `.github/pull_request_template.md` reprenant §396 à §399
 
 **Tests et preuves**
-- [ ] Tests d'architecture verts ; un import Flux factice fait échouer la suite
+- [x] Tests d'architecture verts ; un import Flux factice fait échouer la suite
 - [ ] CI verte sur la branche principale
-- [ ] Test de registre : une table non déclarée fait échouer la suite
+- [x] Test de registre : une table non déclarée fait échouer la suite
 
 **Acceptance**
 - [ ] GIVEN un clone propre sous Herd, sans Redis, Meilisearch, S3 ni Reverb démarrés, WHEN `composer setup` puis les gates sont lancés, THEN tout est vert.
@@ -392,6 +392,7 @@ Les composants spécialisés arrivent avec la passe qui en a besoin : dates (P07
 - [ ] Calendriers : jours fériés France versionnés, heures ouvrées (§182, §447)
 - [ ] Composants DatePicker, DateRangePicker, TimePicker
 - [ ] Attribut `dir` piloté par la locale (RTL complet en P66)
+- [ ] Page d'accueil (`home.blade.php`) passée en clés anglaises traduites en `fr` ; exclusion retirée de `tests/Unit/TranslationsTest.php`
 
 **Tests obligatoires**
 - [ ] Changements d'heure Europe/Paris (mars, octobre)

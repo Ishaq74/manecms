@@ -184,7 +184,7 @@ final class CheckRunner
             'pest' => array_merge([PHP_BINARY, 'vendor/bin/pest'], $dirty),
             'insights' => [PHP_BINARY, 'artisan', 'insights'],
             'type-coverage' => [
-                PHP_BINARY, '-d', 'memory_limit=2G', 'vendor/bin/pest', '--type-coverage',
+                PHP_BINARY, '-d', 'memory_limit=2G', 'vendor/bin/pest', '--type-coverage', '--min=100',
             ],
             default => throw new RuntimeException("No command defined for stage [{$stage}]."),
         };

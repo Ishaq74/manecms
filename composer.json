@@ -1,8 +1,8 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/livewire-starter-kit",
+    "name": "manecms/manecms",
     "type": "project",
-    "description": "The official Laravel starter kit for Livewire.",
+    "description": "ManeCMS, a universal business platform built on Laravel.",
     "keywords": [
         "laravel",
         "framework"
@@ -75,7 +75,7 @@
         ],
         "dev": [
             "Composer\\Config::disableProcessTimeout",
-            "pnpm exec concurrently -c \"#93c5fd,#c4b5fd,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"pnpm run dev\" --names='server,queue,vite'"
+            "pnpm exec concurrently -c \"#c4b5fd,#fdba74\" \"php artisan queue:listen --tries=1\" \"pnpm run dev\" --names='queue,vite'"
         ],
         "lint": [
             "pint --parallel"

@@ -16,7 +16,12 @@ use Tests\TestCase;
 
 pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
+    ->group('feature')
     ->in('Feature');
+
+pest()->group('unit')->in('Unit');
+
+pest()->group('architecture')->in('Architecture');
 
 /*
 |--------------------------------------------------------------------------
