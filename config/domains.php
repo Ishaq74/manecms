@@ -26,6 +26,10 @@ return [
         'personal_access_tokens' => 'Identity',
         'sessions' => 'Identity',
         'users' => 'Identity',
+
+        'tenant_members' => 'Tenancy',
+        'tenants' => 'Tenancy',
+        'workspaces' => 'Tenancy',
     ],
 
 ];
