@@ -10,9 +10,10 @@ use App\Models\User;
  * surrounding form submits it.
  */
 it('expose dashboard, profil et deconnexion', function (): void {
-    $this->actingAs(User::factory()->create());
+    [$user, $workspace] = joinWorkspace();
+    $this->actingAs($user);
 
-    $html = $this->get(route('dashboard'))->assertOk()->getContent();
+    $html = $this->get(route('workspace.home', $workspace))->assertOk()->getContent();
 
     // The markup wraps slot content across lines, so compare without whitespace.
     $flat = (string) preg_replace('/\s+/', ' ', $html);

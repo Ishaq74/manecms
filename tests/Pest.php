@@ -1,5 +1,10 @@
 <?php
 
+use App\Domain\Tenancy\Context\TenantContext;
+use App\Domain\Tenancy\Enums\TenantRole;
+use App\Domain\Tenancy\Models\TenantMember;
+use App\Domain\Tenancy\Models\Workspace;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -52,4 +57,25 @@ expect()->extend('toBeOne', function () {
 function something()
 {
     // ..
+}
+
+/**
+ * Create a user who belongs to a fresh tenant with one workspace.
+ *
+ * @return array{0: User, 1: Workspace, 2: TenantMember}
+ */
+function joinWorkspace(TenantRole $role = TenantRole::Owner): array
+{
+    $member = TenantMember::factory()->create(['role' => $role]);
+    $workspace = Workspace::factory()->for($member->tenant)->create();
+
+    return [$member->user, $workspace, $member];
+}
+
+/**
+ * Install the tenant context the way ResolveWorkspace does for HTTP requests.
+ */
+function enterWorkspace(TenantMember $member, Workspace $workspace): void
+{
+    app(TenantContext::class)->install($member, $workspace);
 }

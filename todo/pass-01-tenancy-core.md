@@ -160,18 +160,22 @@ Câblage :
 | GET | `/dashboard` | `dashboard` | auth, verified : redirige vers `workspace.home` ou `onboarding` |
 | GET | `/onboarding` | `onboarding` | auth, verified |
 | GET | `/w/{workspace}` | `workspace.home` | auth, verified, ResolveWorkspace |
-| GET | `/w/{workspace}/workspaces/create` | `workspace.create` | idem + `can:create` |
+| GET | `/w/{workspace}/workspaces/create` | `workspace.create` | idem ; `authorize('create')` dans `mount()` |
 | GET | `/w/{workspace}/settings` | `workspace.settings` | idem |
 | GET | `/w/{workspace}/tenant/settings` | `tenant.settings` | idem |
 
 Le nom `dashboard` est conservé : Fortify et le shell existant y redirigent déjà.
+
+L'autorisation des pages de gestion se fait dans `mount()` plutôt que par le middleware `can` :
+le tri de priorité des middlewares peut exécuter `Authorize` avant `ResolveWorkspace`, donc
+avant l'installation du contexte.
 
 ## 6. Contexte de requête
 
 `ResolveWorkspace` :
 
 1. Lit l'ULID de la route. Un ULID mal formé donne 404.
-2. Charge le workspace et l'appartenance de l'utilisateur à son tenant en une requête.
+2. Charge le workspace actif puis l'appartenance de l'utilisateur à son tenant (deux requêtes indexées).
 3. Workspace inconnu, archivé ou user non membre : 404.
 4. Installe `TenantContext` (tenant, workspace, member).
 5. Met à jour `last_workspace_id` uniquement s'il diffère.

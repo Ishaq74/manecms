@@ -13,10 +13,14 @@ function sidebarXPath(string $html): DOMXPath
 }
 
 it('renders the app pages with the collapsible sidebar', function (): void {
-    $user = User::factory()->create();
+    [$user, $workspace] = joinWorkspace();
 
     $pages = [
-        '/dashboard',
+        route('workspace.home', $workspace, absolute: false),
+        route('workspace.create', $workspace, absolute: false),
+        route('workspace.settings', $workspace, absolute: false),
+        route('tenant.settings', $workspace, absolute: false),
+        route('onboarding', absolute: false),
         '/settings/profile',
         '/settings/security',
         '/settings/appearance',
@@ -38,10 +42,10 @@ it('renders the app pages with the collapsible sidebar', function (): void {
     }
 });
 
-it('keeps the sidebar navigation to a single entry', function (): void {
-    $user = User::factory()->create();
+it('keeps the user menu entries out of the sidebar navigation', function (): void {
+    [$user, $workspace] = joinWorkspace();
 
-    $xpath = sidebarXPath($this->actingAs($user)->get(route('dashboard'))->assertOk()->getContent());
+    $xpath = sidebarXPath($this->actingAs($user)->get(route('workspace.home', $workspace))->assertOk()->getContent());
 
     $labels = [];
 
@@ -50,13 +54,15 @@ it('keeps the sidebar navigation to a single entry', function (): void {
     }
 
     // Dashboard and Profile live in the user menu, not twice.
-    expect(array_keys($labels))->toBe(['View site']);
+    expect(array_keys($labels))->toContain('View site')
+        ->not->toContain('Dashboard')
+        ->not->toContain('Profile');
 });
 
 it('renders the user menu only inside the sidebars', function (): void {
-    $user = User::factory()->create();
+    [$user, $workspace] = joinWorkspace();
 
-    $xpath = sidebarXPath($this->actingAs($user)->get(route('dashboard'))->assertOk()->getContent());
+    $xpath = sidebarXPath($this->actingAs($user)->get(route('workspace.home', $workspace))->assertOk()->getContent());
 
     // One copy in the desktop sidebar, one in the mobile one, both collapsible
     // so only one is ever visible. A third would mean the layout header carries

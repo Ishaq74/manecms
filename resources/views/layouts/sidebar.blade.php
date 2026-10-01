@@ -1,4 +1,5 @@
-{{-- Authenticated app pages with the collapsible sidebar: dashboard and settings. --}}
+{{-- Authenticated app pages with the collapsible sidebar: workspaces and settings. --}}
+@php($tenantContext = app(\App\Domain\Tenancy\Context\TenantContext::class))
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}"
       x-data="tallstackui_darkTheme({ default: 'dark' })">
@@ -20,6 +21,30 @@
                             <x-app-logo :show-name="false" :href="route('home')" wire:navigate />
                         </div>
                     </x-slot:brandCollapsed>
+
+                    <div class="px-2 pb-2">
+                        <x-workspace-switcher />
+                    </div>
+
+                    @if ($tenantContext->isInstalled())
+                        @can('update', $tenantContext->workspace())
+                            <x-side-bar.item
+                                icon="cog-6-tooth"
+                                :href="route('workspace.settings', $tenantContext->workspace())"
+                                :current="request()->routeIs('workspace.settings')"
+                                :text="__('Workspace settings')"
+                            />
+                        @endcan
+
+                        @can('update', $tenantContext->tenant())
+                            <x-side-bar.item
+                                icon="building-office"
+                                :href="route('tenant.settings', $tenantContext->workspace())"
+                                :current="request()->routeIs('tenant.settings')"
+                                :text="__('Space settings')"
+                            />
+                        @endcan
+                    @endif
 
                     <x-side-bar.separator line :text="__('Platform')" />
 

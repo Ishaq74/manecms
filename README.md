@@ -52,7 +52,7 @@ Chaque passe a ses livrables, invariants, tests et critères d'acceptation déta
 ### Train V1.0 — noyau universel + freelance / services France
 
 - [ ] **P00** Mise en conformité du socle
-- [ ] **P01** Tenancy core — dépend de P00
+- [x] **P01** Tenancy core — dépend de P00
 - [ ] **P02** Isolation PostgreSQL (RLS) — P01
 - [ ] **P03** Audit, corrélation, erreurs typées — P02
 - [ ] **P04** ManeUI : fondations — P01

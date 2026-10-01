@@ -111,7 +111,7 @@ Copier dans `todo/pass-XX-<slug>.md` :
 | ID | Passe | Train | Tier | Dépend de | Statut |
 |:--|:--|:--|:--|:--|:--|
 | P00 | Mise en conformité du socle | V1.0 | STANDARD | — | en cours (acceptance clone propre à faire) |
-| P01 | Tenancy core | V1.0 | VITAL | P00 | spec prête |
+| P01 | Tenancy core | V1.0 | VITAL | P00 | acceptée |
 | P02 | Isolation PostgreSQL (RLS) | V1.0 | VITAL | P01 | à faire |
 | P03 | Audit, corrélation, erreurs typées | V1.0 | VITAL | P02 | à faire |
 | P04 | ManeUI : fondations | V1.0 | STANDARD | P01 | à faire |
@@ -224,15 +224,15 @@ Copier dans `todo/pass-XX-<slug>.md` :
 `VITAL` · Dépend : P00 · Cahier : §15.1, §16–§16.4, §20.1 · Spec : **`todo/pass-01-tenancy-core.md`**
 
 **Livrables** (détail dans la spec)
-- [ ] Tables `tenants`, `workspaces`, `tenant_members` avec contraintes et index de la spec
-- [ ] `TenantContext`, middleware `ResolveWorkspace`, exception `TenantContextRequired`
-- [ ] Onboarding tenant + premier workspace ; création, renommage, archivage, bascule de workspace
-- [ ] Policies, matrice d'autorisation, 404 pour les non-membres
-- [ ] Blocage de suppression de compte pour un owner
-- [ ] `context.md` Tenancy, ADR 0002 modèle de tenancy
+- [x] Tables `tenants`, `workspaces`, `tenant_members` avec contraintes et index de la spec
+- [x] `TenantContext`, middleware `ResolveWorkspace`, exception `TenantContextRequired`
+- [x] Onboarding tenant + premier workspace ; création, renommage, archivage, bascule de workspace
+- [x] Policies, matrice d'autorisation, 404 pour les non-membres
+- [x] Blocage de suppression de compte pour un owner
+- [x] `context.md` Tenancy, ADR 0002 modèle de tenancy
 
 **Acceptance**
-- [ ] GIVEN deux tenants A et B, WHEN un membre de A tente d'ouvrir un workspace de B par URL ou Livewire, THEN il reçoit 404 et rien n'est modifié.
+- [x] GIVEN deux tenants A et B, WHEN un membre de A tente d'ouvrir un workspace de B par URL ou Livewire, THEN il reçoit 404 et rien n'est modifié.
 
 ---
 
