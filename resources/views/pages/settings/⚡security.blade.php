@@ -171,7 +171,6 @@ new #[Layout('layouts::sidebar')] #[Title('Security settings')] class extends Co
 <section class="w-full">
     @include('partials.settings-heading')
 
-    <h2 class="sr-only">{{ __('Security settings') }}</h2>
 
     <x-pages::settings.layout :heading="__('Update password')" :subheading="__('Ensure your account is using a long, random password to stay secure')">
         <form method="POST" wire:submit="updatePassword" class="mt-6 space-y-6">
@@ -205,18 +204,18 @@ new #[Layout('layouts::sidebar')] #[Title('Security settings')] class extends Co
 
         @if ($canManageTwoFactor)
             <section class="mt-12">
-                <h2 class="text-lg font-medium tracking-tight text-zinc-800 dark:text-white">
+                <h2 class="text-lg font-medium tracking-tight text-dark-800 dark:text-white">
                     {{ __('Two-factor authentication') }}
                 </h2>
 
-                <p class="text-sm text-zinc-500 dark:text-zinc-400">
+                <p class="text-sm text-dark-500 dark:text-dark-400">
                     {{ __('Manage your two-factor authentication settings') }}
                 </p>
 
                 <div class="flex flex-col w-full mx-auto space-y-6 text-sm" wire:cloak>
                     @if ($twoFactorEnabled)
                         <div class="space-y-4">
-                            <p class="text-sm text-zinc-600 dark:text-zinc-400">
+                            <p class="text-sm text-dark-600 dark:text-dark-400">
                                 {{ __('You will be prompted for a secure, random pin during login, which you can retrieve from the TOTP-supported application on your phone.') }}
                             </p>
 
@@ -228,7 +227,7 @@ new #[Layout('layouts::sidebar')] #[Title('Security settings')] class extends Co
                         </div>
                     @else
                         <div class="space-y-4">
-                            <p class="text-sm text-zinc-600 dark:text-zinc-400">
+                            <p class="text-sm text-dark-600 dark:text-dark-400">
                                 {{ __('When you enable two-factor authentication, you will be prompted for a secure pin during login. This pin can be retrieved from a TOTP-supported application on your phone.') }}
                             </p>
 
@@ -247,21 +246,21 @@ new #[Layout('layouts::sidebar')] #[Title('Security settings')] class extends Co
 
         @if ($canManagePasskeys)
             <section class="mt-12">
-                <h2 class="text-lg font-medium tracking-tight text-zinc-800 dark:text-white">
+                <h2 class="text-lg font-medium tracking-tight text-dark-800 dark:text-white">
                     {{ __('Passkeys') }}
                 </h2>
 
-                <p class="text-sm text-zinc-500 dark:text-zinc-400">
+                <p class="text-sm text-dark-500 dark:text-dark-400">
                     {{ __('Manage your passkeys for passwordless sign-in') }}
                 </p>
 
                 <div class="mt-6 flex flex-col w-full mx-auto space-y-6 text-sm" wire:cloak>
-                    <div class="border rounded-lg border-zinc-200 dark:border-zinc-700 overflow-hidden">
+                    <div class="border rounded-lg border-dark-200 dark:border-dark-700 overflow-hidden">
                         @forelse ($passkeys as $passkey)
-                            <div class="flex items-center justify-between p-4 {{ ! $loop->last ? 'border-b border-zinc-200 dark:border-zinc-700' : '' }}">
+                            <div class="flex items-center justify-between p-4 {{ ! $loop->last ? 'border-b border-dark-200 dark:border-dark-700' : '' }}">
                                 <div class="flex items-center gap-4">
-                                    <div class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-800">
-                                        <svg class="size-5 text-zinc-500 dark:text-zinc-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                                    <div class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-dark-100 dark:bg-dark-800">
+                                        <svg class="size-5 text-dark-500 dark:text-dark-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-5.879a1.5 1.5 0 0 1 .4-.925l6.404-5.977a3 3 0 0 1 6.946 3.181Z" />
                                         </svg>
                                     </div>
@@ -272,7 +271,7 @@ new #[Layout('layouts::sidebar')] #[Title('Security settings')] class extends Co
                                                 <x-badge sm>{{ $passkey['authenticator'] }}</x-badge>
                                             @endif
                                         </div>
-                                        <p class="text-zinc-500 dark:text-zinc-400 text-xs">
+                                        <p class="text-dark-500 dark:text-dark-400 text-xs">
                                             {{ __('Added :time', ['time' => $passkey['created_at_diff']]) }}
                                             @if ($passkey['last_used_at_diff'])
                                                 <span class="opacity-50 mx-1">/</span>
@@ -295,13 +294,13 @@ new #[Layout('layouts::sidebar')] #[Title('Security settings')] class extends Co
                             </div>
                         @empty
                             <div class="p-8 text-center">
-                                <div class="mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl bg-zinc-100 dark:bg-zinc-800">
-                                    <svg class="size-7 text-zinc-400 dark:text-zinc-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                                <div class="mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl bg-dark-100 dark:bg-dark-800">
+                                    <svg class="size-7 text-dark-400 dark:text-dark-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-5.879a1.5 1.5 0 0 1 .4-.925l6.404-5.977a3 3 0 0 1 6.946 3.181Z" />
                                     </svg>
                                 </div>
                                 <p class="font-medium">{{ __('No passkeys yet') }}</p>
-                                <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                                <p class="mt-1 text-sm text-dark-500 dark:text-dark-400">
                                     {{ __('Add a passkey to sign in without a password') }}
                                 </p>
                             </div>
@@ -317,11 +316,11 @@ new #[Layout('layouts::sidebar')] #[Title('Security settings')] class extends Co
     <x-modal id="delete-passkey-modal" size="md" wire="showDeleteModal">
         <div class="space-y-6">
             <div class="space-y-2">
-                <h2 class="text-lg font-medium tracking-tight text-zinc-800 dark:text-white">
+                <h2 class="text-lg font-medium tracking-tight text-dark-800 dark:text-white">
                     {{ __('Remove passkey') }}
                 </h2>
 
-                <p class="text-sm text-zinc-500 dark:text-zinc-400">
+                <p class="text-sm text-dark-500 dark:text-dark-400">
                     {{ __('Are you sure you want to remove the passkey ":name"? You will no longer be able to use it to sign in.', ['name' => $deletingPasskeyName]) }}
                 </p>
             </div>

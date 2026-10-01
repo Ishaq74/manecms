@@ -81,7 +81,6 @@ new #[Layout('layouts::sidebar')] #[Title('Profile settings')] class extends Com
 <section class="w-full">
     @include('partials.settings-heading')
 
-    <h2 class="sr-only">{{ __('Profile settings') }}</h2>
 
     <x-pages::settings.layout :heading="__('Profile')" :subheading="__('Update your name and email address')">
         <form wire:submit="updateProfileInformation" class="my-6 w-full space-y-6">
@@ -92,7 +91,7 @@ new #[Layout('layouts::sidebar')] #[Title('Profile settings')] class extends Com
 
                 @if ($this->hasUnverifiedEmail)
                     <div>
-                        <p class="mt-4 text-sm text-zinc-600 dark:text-zinc-400">
+                        <p class="mt-4 text-sm text-dark-600 dark:text-dark-400">
                             {{ __('Your email address is unverified.') }}
 
                             <button
@@ -105,7 +104,7 @@ new #[Layout('layouts::sidebar')] #[Title('Profile settings')] class extends Com
                         </p>
 
                         @if (session('status') === 'verification-link-sent')
-                            <p class="mt-2 text-sm font-medium text-green-600 dark:text-green-400">
+                            <p class="mt-2 text-sm font-medium text-secondary-600 dark:text-secondary-400">
                                 {{ __('A new verification link has been sent to your email address.') }}
                             </p>
                         @endif

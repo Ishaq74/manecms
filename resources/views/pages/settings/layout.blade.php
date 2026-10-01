@@ -9,35 +9,36 @@
                 @php $isCurrent = request()->routeIs($routeName); @endphp
 
                 <li>
-                    <a
+                    <x-link
+                        navigate
+                        colorless
                         href="{{ route($routeName) }}"
-                        wire:navigate
                         @class([
-                            'flex items-center rounded-lg px-3 py-2 text-sm transition-colors',
-                            'bg-zinc-800/5 text-zinc-900 dark:bg-white/10 dark:text-white' => $isCurrent,
-                            'text-zinc-500 hover:bg-zinc-800/5 hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-white/[7%] dark:hover:text-white' => ! $isCurrent,
+                            'flex items-center rounded-lg px-3 py-2 text-sm transition-colors no-underline',
+                            'bg-dark-800/5 text-dark-900 dark:bg-white/10 dark:text-white' => $isCurrent,
+                            'text-dark-600 hover:bg-dark-800/5 hover:text-dark-900 dark:text-dark-300 dark:hover:bg-white/[7%] dark:hover:text-white' => ! $isCurrent,
                         ])
-                        @if ($isCurrent) aria-current="page" @endif
+                        :aria-current="$isCurrent ? 'page' : null"
                     >
                         {{ $label }}
-                    </a>
+                    </x-link>
                 </li>
             @endforeach
         </ul>
     </nav>
 
-    <hr class="border-zinc-200 md:hidden dark:border-zinc-700" />
+    <hr class="border-dark-200 md:hidden dark:border-dark-700" />
 
     <div class="flex-1 self-stretch max-md:pt-6">
-        <h2 class="text-lg font-medium tracking-tight text-zinc-800 dark:text-white">
+        <h2 class="text-lg font-medium tracking-tight text-dark-800 dark:text-white">
             {{ $heading ?? '' }}
         </h2>
 
-        <p class="text-sm text-zinc-500 dark:text-zinc-400">
+        <p class="text-sm text-dark-500 dark:text-dark-400">
             {{ $subheading ?? '' }}
         </p>
 
-        <div class="mt-5 w-full max-w-lg">
+        <div class="mt-5 w-full">
             {{ $slot }}
         </div>
     </div>

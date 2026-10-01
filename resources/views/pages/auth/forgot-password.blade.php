@@ -26,9 +26,9 @@
             />
         </form>
 
-        <div class="space-x-1 rtl:space-x-reverse text-center text-sm text-zinc-400">
+        <div class="space-x-1 rtl:space-x-reverse text-center text-sm text-dark-400">
             <span>{{ __('Or, return to') }}</span>
-            <a class="underline" href="{{ route('login') }}" wire:navigate>{{ __('log in') }}</a>
+            <x-link underline navigate :href="route('login')" :text="__('log in')" />
         </div>
     </div>
 </x-layouts::auth>

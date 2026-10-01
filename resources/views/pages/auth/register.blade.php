@@ -55,9 +55,9 @@
             </div>
         </form>
 
-        <div class="space-x-1 rtl:space-x-reverse text-center text-sm text-zinc-600 dark:text-zinc-400">
+        <div class="space-x-1 rtl:space-x-reverse text-center text-sm text-dark-600 dark:text-dark-400">
             <span>{{ __('Already have an account?') }}</span>
-            <a class="underline" href="{{ route('login') }}" wire:navigate>{{ __('Log in') }}</a>
+            <x-link underline navigate :href="route('login')" :text="__('Log in')" />
         </div>
     </div>
 </x-layouts::auth>

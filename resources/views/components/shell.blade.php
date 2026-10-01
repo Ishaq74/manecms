@@ -8,7 +8,7 @@
     <head>
         @include('partials.head')
     </head>
-    <body class="min-h-svh bg-white text-zinc-800 antialiased dark:bg-zinc-900 dark:text-zinc-100">
+    <body class="min-h-svh bg-white text-dark-800 antialiased dark:bg-dark-900 dark:text-dark-100">
         <div {{ $attributes->class('flex min-h-svh flex-col') }}>
             @include('partials.header')
 

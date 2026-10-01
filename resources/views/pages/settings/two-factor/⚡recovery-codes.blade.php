@@ -46,20 +46,20 @@ new class extends Component {
 }; ?>
 
 <div
-    class="py-6 space-y-6 border shadow-sm rounded-xl border-zinc-200 dark:border-white/10"
+    class="py-6 space-y-6 border shadow-sm rounded-xl border-dark-200 dark:border-white/10"
     wire:cloak
     x-data="{ showRecoveryCodes: false }"
 >
     <div class="px-6 space-y-2">
         <div class="flex items-center gap-2">
-            <svg class="size-4 text-zinc-500 dark:text-zinc-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <svg class="size-4 text-dark-500 dark:text-dark-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
         </svg>
-            <h3 class="text-lg font-medium tracking-tight text-zinc-800 dark:text-white">
+            <h3 class="text-lg font-medium tracking-tight text-dark-800 dark:text-white">
                 {{ __('2FA recovery codes') }}
             </h3>
         </div>
-        <p class="text-sm text-zinc-500 dark:text-zinc-400">
+        <p class="text-sm text-dark-500 dark:text-dark-400">
             {{ __('Recovery codes let you regain access if you lose your 2FA device. Store them in a secure password manager.') }}
         </p>
     </div>
@@ -108,7 +108,7 @@ new class extends Component {
 
                 @if (filled($recoveryCodes))
                     <div
-                        class="grid gap-1 p-4 font-mono text-sm rounded-lg bg-zinc-100 dark:bg-white/5"
+                        class="grid gap-1 p-4 font-mono text-sm rounded-lg bg-dark-100 dark:bg-white/5"
                         role="list"
                         aria-label="{{ __('Recovery codes') }}"
                     >
@@ -122,7 +122,7 @@ new class extends Component {
                             </div>
                         @endforeach
                     </div>
-                    <p class="text-xs text-zinc-500 dark:text-zinc-400">
+                    <p class="text-xs text-dark-500 dark:text-dark-400">
                         {{ __('Each recovery code can be used once to access your account and will be removed after use. If you need more, click Regenerate codes above.') }}
                     </p>
                 @endif

@@ -1,42 +1,37 @@
-{{-- App pages with the collapsible sidebar: dashboard, settings, admin. --}}
+{{-- Authenticated app pages with the collapsible sidebar: dashboard and settings. --}}
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}"
       x-data="tallstackui_darkTheme({ default: 'dark' })">
     <head>
         @include('partials.head')
     </head>
-    <body class="min-h-svh bg-white text-zinc-800 antialiased dark:bg-zinc-900 dark:text-zinc-100">
+    <body class="min-h-svh bg-white text-dark-800 antialiased dark:bg-dark-900 dark:text-dark-100">
         <x-layout>
             <x-slot:menu>
                 <x-side-bar collapsible smart navigate thin-scroll>
                     <x-slot:brand>
-                        <x-app-logo :href="route('home')" wire:navigate />
+                        <div class="flex h-16 shrink-0 items-center px-4">
+                            <x-app-logo :href="route('home')" wire:navigate />
+                        </div>
                     </x-slot:brand>
 
-                    <x-side-bar.separator :text="__('Platform')" />
+                    <x-slot:brandCollapsed>
+                        <div class="flex h-16 shrink-0 items-center px-4">
+                            <x-app-logo :show-name="false" :href="route('home')" wire:navigate />
+                        </div>
+                    </x-slot:brandCollapsed>
+
+                    <x-side-bar.separator line :text="__('Platform')" />
 
                     <x-side-bar.item
-                        icon="computer-desktop"
+                        icon="eye"
                         :href="route('home')"
                         :current="request()->routeIs('home')"
-                        :text="__('Home')"
+                        :text="__('View site')"
                     />
 
-                    @auth
-                        <x-side-bar.item
-                            icon="list-bullet"
-                            :href="route('dashboard')"
-                            :current="request()->routeIs('dashboard')"
-                            :text="__('Dashboard')"
-                        />
-                    @endauth
-
                     <x-slot:footer>
-                        @auth
-                            <x-desktop-user-menu />
-                        @else
-                            <x-button block :href="route('login')" navigate :text="__('Log in')" />
-                        @endauth
+                        <x-desktop-user-menu />
                     </x-slot:footer>
                 </x-side-bar>
             </x-slot:menu>
@@ -44,18 +39,28 @@
             <x-slot:header>
                 <x-layout.header>
                     <x-slot:right>
-                        <x-theme-switch simple only-icons />
+                        <button
+                            type="button"
+                            role="switch"
+                            aria-label="{{ __('Toggle theme') }}"
+                            x-bind:aria-checked="darkTheme.toString()"
+                            x-on:click="mode = darkTheme ? 'light' : 'dark'; $el.dispatchEvent(new CustomEvent('theme', { detail: { darkTheme: mode === 'dark', mode: mode } }))"
+                            data-test="theme-switch"
+                            class="cursor-pointer rounded-md p-1.5 text-dark-500 transition-colors hover:bg-dark-800/5 hover:text-dark-800 dark:text-dark-400 dark:hover:bg-white/10 dark:hover:text-white"
+                        >
+                            <span class="block dark:hidden">
+                                <x-icon name="sun" />
+                            </span>
 
-                        @guest
-                            <x-button :href="route('login')" navigate :text="__('Log in')" />
-                        @else
-                            <x-desktop-user-menu class="lg:hidden" />
-                        @endguest
+                            <span class="hidden dark:block">
+                                <x-icon name="moon" />
+                            </span>
+                        </button>
                     </x-slot:right>
                 </x-layout.header>
             </x-slot:header>
 
-            <div class="w-full px-4 py-8 sm:px-6 lg:px-8">
+            <div class="w-full">
                 {{ $slot }}
             </div>
 

@@ -1,9 +1,7 @@
 @php
-    $links = [['home', __('Home')]];
-
-    if (auth()->check()) {
-        $links[] = ['dashboard', __('Dashboard')];
-    }
+    $links = [
+        ['route' => 'home', 'label' => __('Home')],
+    ];
 @endphp
 
 {{--
@@ -12,7 +10,7 @@
     after `.hidden` in the stylesheet and would win.
 --}}
 
-<header class="sticky top-0 z-30 border-b border-zinc-200 bg-white/80 backdrop-blur dark:border-zinc-700 dark:bg-zinc-900/80">
+<header class="sticky top-0 z-30 border-b border-dark-200 bg-white/80 backdrop-blur dark:border-dark-700 dark:bg-dark-900/80">
     <div class="mx-auto flex h-16 max-w-7xl items-center gap-2 px-4 sm:gap-3 sm:px-6 lg:px-8">
         <div class="sm:hidden">
             <x-button.circle
@@ -28,20 +26,7 @@
         <x-app-logo :href="route('home')" navigate />
 
         <nav aria-label="{{ __('Main navigation') }}" class="hidden items-center gap-1 sm:flex">
-            @foreach ($links as [$name, $label])
-                <a
-                    href="{{ route($name) }}"
-                    wire:navigate
-                    @class([
-                        'rounded-lg px-3 py-2 text-sm transition-colors',
-                        'bg-zinc-800/5 font-medium text-zinc-900 dark:bg-white/10 dark:text-white' => request()->routeIs($name),
-                        'text-zinc-500 hover:bg-zinc-800/5 hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-white/[7%] dark:hover:text-white' => ! request()->routeIs($name),
-                    ])
-                    @if (request()->routeIs($name)) aria-current="page" @endif
-                >
-                    {{ $label }}
-                </a>
-            @endforeach
+            @include('partials.nav-links', ['links' => $links])
         </nav>
 
         <div class="ms-auto flex items-center gap-2">
@@ -66,33 +51,45 @@
                 </div>
             @else
                 <div class="hidden sm:block">
-                    <x-desktop-user-menu />
+                    <x-desktop-user-menu test-prefix="desktop-user-menu" />
                 </div>
             @endguest
 
-            <x-theme-switch simple only-icons />
+            {{--
+                Icon visibility is pure CSS: partials/head puts `dark` on <html>
+                before the first paint, so the right glyph is drawn on the very
+                first frame. Alpine only handles the click, and setting `mode` is
+                what persists the choice, since tallstackui_darkTheme watches it.
+
+                x-theme-switch was not used here on purpose: both its variations
+                cloak themselves and bind the icons with Alpine, which meant the
+                control popped in after boot and shifted the header.
+            --}}
+            <button
+                type="button"
+                role="switch"
+                aria-label="{{ __('Toggle theme') }}"
+                x-bind:aria-checked="darkTheme.toString()"
+                x-on:click="mode = darkTheme ? 'light' : 'dark'; $el.dispatchEvent(new CustomEvent('theme', { detail: { darkTheme: mode === 'dark', mode: mode } }))"
+                data-test="theme-switch"
+                class="cursor-pointer rounded-md p-1.5 text-dark-500 transition-colors hover:bg-dark-800/5 hover:text-dark-800 dark:text-dark-400 dark:hover:bg-white/10 dark:hover:text-white"
+            >
+                <span class="block dark:hidden">
+                    <x-icon name="sun" />
+                </span>
+
+                <span class="hidden dark:block">
+                    <x-icon name="moon" />
+                </span>
+            </button>
         </div>
     </div>
 
     <x-slide id="mobile-navigation" left size="sm" paddingless>
         <nav aria-label="{{ __('Mobile navigation') }}" class="flex flex-col gap-1 p-4">
-            @foreach ($links as [$name, $label])
-                <a
-                    href="{{ route($name) }}"
-                    wire:navigate
-                    x-on:click="$tsui.close.slide('mobile-navigation')"
-                    @class([
-                        'rounded-lg px-3 py-2 text-sm transition-colors',
-                        'bg-zinc-800/5 font-medium text-zinc-900 dark:bg-white/10 dark:text-white' => request()->routeIs($name),
-                        'text-zinc-500 hover:bg-zinc-800/5 hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-white/[7%] dark:hover:text-white' => ! request()->routeIs($name),
-                    ])
-                    @if (request()->routeIs($name)) aria-current="page" @endif
-                >
-                    {{ $label }}
-                </a>
-            @endforeach
+            @include('partials.nav-links', ['links' => $links])
 
-            <hr class="my-2 border-zinc-200 dark:border-zinc-700" />
+            <hr class="my-2 border-dark-200 dark:border-dark-700" />
 
             @guest
                 <x-button
@@ -112,7 +109,7 @@
                     :text="__('Register')"
                 />
             @else
-                <x-desktop-user-menu />
+                <x-desktop-user-menu test-prefix="mobile-user-menu" />
             @endguest
         </nav>
     </x-slide>

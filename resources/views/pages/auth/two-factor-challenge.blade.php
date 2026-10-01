@@ -58,7 +58,7 @@
                                     maxlength="1"
                                     :autocomplete="index === 1 ? 'one-time-code' : 'off'"
                                     aria-label="{{ __('Authentication code digit') }} {{ index }}"
-                                    class="h-12 w-12 rounded-lg border border-zinc-300 text-center text-lg font-semibold text-zinc-800 focus:border-zinc-500 focus:ring-2 focus:ring-zinc-500 focus:outline-hidden dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
+                                    class="h-12 w-12 rounded-lg border border-dark-300 text-center text-lg font-semibold text-dark-800 focus:border-dark-500 focus:ring-2 focus:ring-dark-500 focus:outline-hidden dark:border-dark-700 dark:bg-dark-900 dark:text-white"
                                     x-model="code[ index - 1 ]"
                                     x-on:input="$el.value = $el.value.replace(/\D/g, '').slice(-1)"
                                     x-on:keydown.backspace.prevent="if (! $el.value && index > 1) { $root.querySelectorAll('input')[ index - 2 ].focus() }"
@@ -80,7 +80,7 @@
                         </div>
 
                         @error('recovery_code')
-                            <p class="text-sm text-red-600 dark:text-red-400">
+                            <p class="text-sm text-primary-600 dark:text-primary-400">
                                 {{ $message }}
                             </p>
                         @enderror

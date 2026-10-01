@@ -38,11 +38,11 @@ new class extends Component {
 <x-modal id="confirm-user-deletion" size="lg" wire="showDeletionModal">
     <form method="POST" wire:submit="deleteUser" class="space-y-6">
         <div>
-            <h2 class="text-lg font-medium tracking-tight text-zinc-800 dark:text-white">
+            <h2 class="text-lg font-medium tracking-tight text-dark-800 dark:text-white">
                 {{ __('Are you sure you want to delete your account?') }}
             </h2>
 
-            <p class="text-sm text-zinc-500 dark:text-zinc-400">
+            <p class="text-sm text-dark-500 dark:text-dark-400">
                 {{ __('Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.') }}
             </p>
         </div>
