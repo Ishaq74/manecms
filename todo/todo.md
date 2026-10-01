@@ -67,6 +67,21 @@ Analytics
 AI
 ```
 
+
+## 0.1 Décisions produit (provisoires, à valider par le product owner)
+
+Décisions prises par défaut le 2026-10-01 pour débloquer la planification. Toute révision met à jour ce tableau, `todo/roadmap.md` et l'ADR concerné.
+
+| ID | Sujet | Décision provisoire | Conséquence |
+|:--|:--|:--|:--|
+| D1 | Distribution | SaaS hébergé multi-tenant, opéré par l'éditeur | RLS obligatoire (§17), back-office opérateur (§20.2), abonnement plateforme |
+| D2 | Releases | V1.0 commercialisable, puis trains V1.x jusqu'à la V1 absolue (§503) | §2.1 |
+| D3 | Premier segment | Freelance, agence, services professionnels (§255, §306) | Fil V1.0 : site → CRM → devis → projet → temps → facture → paiement → comptabilité |
+| D4 | Juridiction initiale | France : TVA, facturation électronique 2026, PCG | Autres pays en V1.x ; §446 s'applique |
+| D5 | Sites publics | Servis par ManeCMS : sous-domaine plateforme et domaines personnalisés | §44.1 |
+| D6 | Paie | Hors V1.0 : export vers un logiciel de paie d'abord, moteur interne en V1.x par juridiction | §91 |
+| D7 | Langues | Interface `fr` par défaut + `en` ; code, base et identifiants en anglais ; `es` et `ar` (RTL) en V1.x | §32 |
+
 ---
 
 # 1. RÈGLES NORMATIVES
@@ -141,6 +156,25 @@ V1 est :
 ```
 
 Toutes les capacités fondamentales doivent exister dans la même V1.
+
+
+## 2.1 Trains de release et passes (amendement D2)
+
+Le principe 2 décrit la **V1 absolue** : tous les contextes de §503. Elle est atteinte par trains :
+
+- **V1.0** : noyau universel + premier segment (D3), publiable commercialement ;
+- **V1.x** : chaque train ajoute des contextes de §503 sans changer l'architecture ni casser les contrats publiés ;
+- **V1 absolue** : tous les contextes de §503 vérifiés, gates §394 et §395 verts.
+
+Construction :
+
+- le travail est découpé en passes `P00` à `P69`, définies dans `todo/roadmap.md` : dépendances, livrables, invariants, tests et acceptance ;
+- avant de démarrer une passe, sa spécification détaillée est écrite dans `todo/pass-XX-*.md` selon le gabarit de la feuille de route, et ses questions ouvertes sont tranchées ;
+- une passe ne démarre que lorsque ses dépendances sont acceptées ;
+- une passe ne contient que ce dont elle a besoin ; tout le reste est reporté vers une passe identifiée ;
+- toute décision d'architecture prise dans une passe est reportée dans ce cahier et dans un ADR.
+
+Les primitives transversales (tenancy, isolation, audit, policy, localisation, temps, argent, événements) précèdent les domaines qui les consomment.
 
 ---
 
@@ -233,6 +267,20 @@ Laravel Herd
 Le projet DOIT être facilement exploitable depuis Herd sans stack Docker obligatoire pour le développement quotidien.
 
 Docker/containers PEUVENT exister pour CI, staging ou reproductibilité infrastructure.
+
+
+## 4.2 Activation progressive des services
+
+PostgreSQL est obligatoire dès J0. Les autres services sont activés par la passe qui en a besoin, jamais avant.
+
+| Service | Activé par | Avant activation |
+|:--|:--|:--|
+| Redis + Horizon | passe Outbox / Queue, ou besoin de cache mesuré | queue `database`, cache `database`, session `database` |
+| Meilisearch | passe Search | aucune recherche full-text |
+| S3 / MinIO | déploiement ou volumétrie media | disque `local` privé |
+| Reverb | passe Realtime | aucun temps réel |
+
+Un service activé arrive avec sa configuration `.env.example`, ses tests et son runbook.
 
 ---
 
@@ -578,6 +626,38 @@ TRANSVERSAL
 └── Reporting
 ```
 
+
+## 11.1 Nommage canonique
+
+La liste du §11 fait foi ; l'arborescence du §13 s'y aligne. Chaque contexte vit dans `App\Domain\<Context>`. Sous-modules :
+
+- `Content` = CMS (§44 à §49) ;
+- `Commerce` contient `Pim`, `Pricing`, `Subscriptions`, `Pos`, `Marketplace` ;
+- `Finance` contient `Tax` ;
+- `Documents` contient `Contracts`, `Signatures`, `Ocr` ;
+- `Projects` contient `Psa`, `Timesheets` ;
+- `Inventory` contient `Wms` ;
+- `Manufacturing` contient `Mrp` ;
+- `Platform` contient `Kernel`, `Configuration`.
+
+Collisions de vocabulaire résolues :
+
+| Terme | Sens unique | Contexte owner |
+|:--|:--|:--|
+| `Organization` | structure interne d'un tenant (§27) | Organization |
+| `Company` | sous-type de Party : personne morale tierce (§22) | Party |
+| `TenantMember` | appartenance d'un user à un tenant (§16.3) | Tenancy |
+| `Membership` | adhésion à un plan (§111) | Membership |
+| `EventManagement` | événements, sessions, billets (§109) | EventManagement |
+| domain event | message publié via l'outbox (§122) | Platform |
+| `File` | stockage, sécurité et métadonnées de fichier (§271) | Media |
+| `MediaAsset` | médiathèque éditoriale : alt, droits, variantes (§50) | Media |
+| DMS | bibliothèque documentaire : dossiers, versions, partage (§51) | Documents |
+| `Artifact` | document généré : gabarit, rendu, preuve (§112) | Documents |
+| `Task` | tâche générique (§60) ; Projects la rattache à ses phases | Collaboration |
+| article de blog, article KB | types de contenu de Content ; Knowledge possède audience et visibilité KB | Content, Knowledge |
+| `Case` | objet unique de suivi d'exception (§56, §273, §474) | Service |
+
 ---
 
 # 12. CONTRAT D'UN DOMAINE
@@ -757,6 +837,64 @@ BOOK-2026-000912
 
 sont gérés par un moteur de numbering dédié.
 
+
+## 15.1 Conventions de données
+
+Ces conventions s'appliquent à toute nouvelle table. Une dérogation exige un ADR.
+
+### Identifiants et colonnes
+
+- Clé primaire ULID (`HasUlids`) pour toute nouvelle table métier. `users.id` reste entier (héritage Identity).
+- Les URL exposent des ULID, jamais des identifiants entiers ni des numéros humains.
+- `NOT NULL` par défaut. Une colonne `nullable` porte une signification métier (ex. `archived_at`).
+- Dates en `timestampTz`, stockées en UTC.
+- Un timestamp remplace un booléen d'état (`archived_at` plutôt que `is_archived`, jamais les deux).
+- Enums : colonne `string` + enum PHP backed + cast.
+- Pas de JSON pour une donnée interrogée ou soumise à invariant.
+- Montants : entier en unité mineure + devise (§35).
+
+### Cycle de vie et suppression
+
+Trois mécanismes, non interchangeables :
+
+1. **Archivage** (`archived_at`) : état métier réversible. L'objet sort des listes et des sélections. Défaut pour les objets structurants : tenant, workspace, organization, catalogue.
+2. **Soft delete** (`deleted_at`) : réservé aux contenus avec corbeille utilisateur : pages, médias, articles. Purge définitive selon rétention.
+3. **Suppression physique** : objets techniques sans valeur historique (tokens, liaisons), ou exécution d'une règle de rétention / RGPD (§326, §328), toujours auditée.
+
+Interdit : supprimer, même logiquement, un objet financier ou légal validé. On l'annule par contre-passation.
+
+Clés étrangères : `restrictOnDelete` par défaut. `cascadeOnDelete` uniquement pour les enfants techniques du même agrégat.
+
+### Unicité
+
+- Toute unicité métier est garantie par un index unique en base (§374). La validation applicative n'est qu'un confort UX.
+- Une unicité scopée inclut `tenant_id` (et `workspace_id` si applicable).
+- Les objets archivés ou soft-deleted conservent leur valeur unique, sauf index partiel documenté.
+- Insensibilité à la casse : colonne normalisée en minuscules à l'écriture, indexée.
+- Collision concurrente : l'action intercepte `UniqueConstraintViolationException` et applique sa stratégie (suffixe ou erreur de validation), jamais une erreur 500.
+
+### Intégrité tenant
+
+- Toute table tenant-scoped porte `tenant_id NOT NULL`, en première colonne de ses index composés.
+- Une table rattachée à un workspace porte `tenant_id` et `workspace_id`, avec une clé étrangère composite `(tenant_id, workspace_id) → workspaces(tenant_id, id)` qui interdit tout rattachement croisé.
+
+### Slugs
+
+- Générés par le serveur, jamais saisis librement sauf champ SEO dédié.
+- Format `^[a-z0-9]+(-[a-z0-9]+)*$`, 60 caractères maximum.
+- Si la translittération produit une chaîne vide (arabe, emoji...), base de repli + suffixe aléatoire.
+- Les slugs exposés en URL ou sous-domaine respectent une liste de valeurs réservées.
+- Immuables par défaut ; un changement de slug public impose une redirection (§49).
+
+### Validation
+
+- Toute entrée est validée côté serveur (Form Request ou action), quelle que soit l'UI.
+- Chaînes normalisées par `Str::squish` avant validation : Livewire n'applique pas `TrimStrings`.
+- La règle `max` est alignée sur la taille de la colonne.
+- Libellé humain : `required|string|min:2|max:120`, sauf règle de domaine.
+- `tenant_id`, `workspace_id` et tout identifiant d'appartenance ne proviennent jamais de l'input : ils viennent du contexte autorisé.
+- Messages traduisibles (`__()`).
+
 ---
 
 # 16. TENANCY
@@ -781,6 +919,40 @@ Site
 ```
 
 Ces concepts ont des identifiants différents.
+
+
+## 16.2 Cardinalités
+
+```text
+User ──< TenantMember >── Tenant ──< Workspace ──< Organization ──< LegalEntity ──< Site
+```
+
+- `Tenant` : compte client et frontière d'isolation (RLS, données, abonnement plateforme).
+- `User` (Identity) : global, membre de plusieurs tenants via `TenantMember`.
+- `Workspace` : appartient à un seul tenant. Un tenant possède toujours au moins un workspace actif.
+- `Organization` : appartient à un workspace. Structure métier (§27), jamais un mécanisme d'accès.
+- Les données métier portent `tenant_id` et, sauf donnée partagée au niveau tenant, `workspace_id`.
+
+Exemples :
+
+- freelance : 1 tenant, 1 workspace, 1 organization ;
+- groupe : 1 tenant, 1 workspace par marque ou pays, n organizations et legal entities ;
+- agence : 1 tenant par client géré ; l'utilisateur de l'agence est membre de chacun.
+
+## 16.3 Appartenance et rôles de base
+
+- L'appartenance se fait au niveau du tenant (`tenant_members`).
+- Rôles de base : `owner`, `admin`, `member`. Un tenant a exactement un owner, garanti par un index unique partiel.
+- Jusqu'à P05, tout membre accède à tous les workspaces de son tenant. La restriction par workspace sera une capability du Policy Engine (§28).
+- Le terme `Membership` est réservé au domaine adhésions (§111) ; la tenancy utilise `TenantMember`.
+- Un non-membre reçoit une réponse 404 : l'existence d'un tenant ou d'un workspace n'est jamais révélée.
+
+## 16.4 Contexte courant
+
+- Les pages tenant-scoped sont adressées par URL : `/w/{workspace}`. L'URL est la source du contexte ; plusieurs onglets peuvent travailler dans des workspaces différents.
+- Le contexte est résolu une fois par requête, HTTP comme Livewire (middleware persistant), après vérification d'appartenance.
+- Un contexte absent lève `TenantContextRequired` (§263) et la requête échoue fermée (§494).
+- Le dernier workspace utilisé est persisté par appartenance pour être retrouvé après reconnexion.
 
 ---
 
@@ -830,6 +1002,18 @@ Tenant non défini :
 READ  → deny
 WRITE → deny
 ```
+
+
+## 17.1 Mise en œuvre PostgreSQL / Laravel
+
+- L'application se connecte avec un rôle `NOSUPERUSER NOBYPASSRLS` qui ne possède pas les tables. Un superuser contourne toujours la RLS : le compte `root` actuel est interdit pour l'exécution applicative dès la passe RLS.
+- Les migrations s'exécutent avec un rôle propriétaire distinct (connexion dédiée).
+- Chaque table tenant-scoped : `ENABLE` et `FORCE ROW LEVEL SECURITY`, une policy par commande avec `USING` et `WITH CHECK`.
+- Prédicat : `tenant_id = current_setting('app.tenant_id', true)`. Variable absente : `NULL`, donc aucune ligne (fail closed).
+- `set_config('app.tenant_id', ...)` est appelé à l'installation de `TenantContext` (HTTP, Livewire, job, commande, scheduler) et remis à zéro en fin de requête ou de job.
+- Les lectures nécessaires avant résolution du tenant (tenants d'un user) passent par une policy dédiée sur `app.user_id`.
+- Un pooler en mode transaction impose `SET LOCAL` dans une transaction explicite ; ce mode est exclu tant qu'un ADR ne l'organise pas.
+- Un test vérifie que chaque table possédant `tenant_id` a la RLS activée et forcée.
 
 ---
 
@@ -895,6 +1079,19 @@ Logout
 Password
 Passkey lorsque retenu
 ```
+
+
+## 20.1 Suppression de compte
+
+- Un owner d'un tenant non archivé ne peut pas supprimer son compte : il transfère d'abord la propriété ou archive le tenant.
+- La suppression d'un compte retire ses appartenances, ne supprime jamais les données d'un tenant et conserve l'audit avec un acteur pseudonymisé.
+
+
+## 20.2 Plateforme opérateur (D1)
+
+- Les opérateurs de la plateforme ont un rôle plateforme, distinct des rôles de tenant.
+- Le back-office opérateur (`/platform`) est séparé des workspaces, exige la MFA et est audité.
+- Un opérateur n'accède aux données d'un tenant que par impersonation explicite (§477) ou break-glass (§269).
 
 ---
 
@@ -1062,6 +1259,15 @@ CanExportData
 CanUseAITool
 CanDelete
 ```
+
+
+## 28.1 RBAC de base
+
+- Permission : chaîne stable `<context>.<resource>.<action>` (ex. `content.page.publish`), déclarée en code par son contexte.
+- Rôle : ensemble nommé de permissions, défini par tenant ; `owner`, `admin` et `member` sont des rôles système non supprimables.
+- Attribution au niveau du tenant, restreignable à des workspaces.
+- Les Laravel Policies délèguent au Policy Engine ; aucun test de rôle par chaîne dans les vues ou les composants.
+- Le Policy Engine combine RBAC, attributs (ABAC), capabilities (§30) et SoD (§29) et rend `ALLOW`, `ALLOW_WITH_CONSTRAINTS`, `DENY` ou `REQUIRE_APPROVAL`.
 
 ---
 
@@ -1542,6 +1748,16 @@ Tag
 Navigation
 Redirect
 ```
+
+
+## 44.1 Sites publics (D5)
+
+- Un workspace possède zéro ou plusieurs sites ; un site est un Channel de type Web (§31).
+- Adresses : sous-domaine de la plateforme et domaines personnalisés, vérifiés par enregistrement DNS TXT, avec TLS automatique.
+- Requête publique : hôte, puis site, puis tenant ; aucune session utilisateur requise ; seules les révisions publiées sont lisibles.
+- Thème : layouts Blade versionnés et tokens ManeUI ; aucun code fourni par le tenant (§47).
+- Cache de page invalidé à la publication (§361).
+- Locales par site, `hreflang` et sitemaps (§49, §337).
 
 ---
 
@@ -4982,6 +5198,9 @@ Objectif :
 0 errors
 ```
 
+
+Le dépôt est au niveau 7 au 2026-10-01 ; la passe P00 le relève à `max`.
+
 ---
 
 # 211. PINT
@@ -6229,6 +6448,18 @@ tenant
 owner
 ```
 
+
+## 271.1 Règles par défaut des uploads
+
+- Stockage privé par défaut ; la publication est explicite.
+- Nom stocké : ULID + extension déduite du MIME détecté. Le nom d'origine n'est qu'une métadonnée.
+- MIME détecté depuis le contenu, jamais depuis le nom ou l'en-tête client.
+- Images acceptées : JPEG, PNG, WebP, AVIF. SVG refusé sauf sanitization dédiée. 10 Mo maximum par défaut, dimensions maximales définies.
+- Images ré-encodées, métadonnées EXIF supprimées (géolocalisation).
+- Checksum SHA-256 stocké ; déduplication dans le tenant.
+- Chaque fichier porte `tenant_id`, propriétaire et classification (§156).
+- Uploads Livewire : validation des fichiers temporaires et purge des temporaires abandonnés.
+
 ---
 
 # 272. PRIVATE MEDIA
@@ -6603,7 +6834,7 @@ Commit
 # 290. DAILY DEVELOPER COMMANDS
 
 ```bash
-php artisan serve
+# le site est servi par Herd (https://manecms.test) : jamais php artisan serve
 php artisan test
 vendor/bin/pest
 vendor/bin/pest --parallel
@@ -6804,6 +7035,11 @@ constraints
 ```
 
 par SQLite.
+
+
+## 299.1 Base de test
+
+Toute la suite tourne sur PostgreSQL (`manecms_testing`), jamais sur SQLite, à partir de P00. Le rôle de test a `CREATEDB` pour les tests parallèles. Les tests RLS utilisent le rôle applicatif non propriétaire.
 
 ---
 
@@ -10279,4 +10515,4 @@ Automation
 Domain Engines
 +
 Universal Business Graph
----
+```
