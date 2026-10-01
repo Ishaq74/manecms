@@ -68,3 +68,22 @@
 [x-cloak]:has(button[x-on\:click^='setAs(']) {
     display: revert;
 }
+
+/*
+ |--------------------------------------------------------------------------
+ | Theme switch, state before Alpine boots
+ |--------------------------------------------------------------------------
+ |
+ | The switch binds its icon opacity with Alpine: opacity-0 while dark,
+ | opacity-100 while light. Until Alpine boots the span carries neither class,
+ | so the moon paints visible and then vanishes on a dark page.
+ |
+ | partials/head puts the dark class on <html> before the first paint, so the
+ | correct state can simply be keyed off it. This rule outranks the opacity
+ | utilities Alpine adds later, and stops applying as soon as the class is
+ | removed from <html>, which the same script does on every change.
+ |
+ */
+.dark [role='switch'] > div > span {
+    opacity: 0;
+}
