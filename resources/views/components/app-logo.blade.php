@@ -2,10 +2,25 @@
     'showName' => true,
 ])
 
-<a {{ $attributes->merge(['class' => 'flex items-center gap-2']) }}>
-    <span class="flex aspect-square size-8 items-center justify-center rounded-md bg-primary-600 text-white">
-        <x-app-logo-icon class="size-5 fill-current text-white dark:text-black" />
-    </span>
+<a
+    {{ $attributes->merge(['class' => 'flex items-center gap-2']) }}
+    @if (! $showName) aria-label="{{ config('app.name', 'Laravel') }}" @endif
+>
+    <img
+        src="/logo-light.svg"
+        alt=""
+        width="32"
+        height="32"
+        class="size-8 dark:hidden"
+    />
+
+    <img
+        src="/logo-dark.svg"
+        alt=""
+        width="32"
+        height="32"
+        class="hidden size-8 dark:block"
+    />
 
     @if ($showName)
         <span class="truncate text-sm font-medium text-dark-800 dark:text-white">

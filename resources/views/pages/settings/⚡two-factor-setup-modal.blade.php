@@ -285,6 +285,7 @@ new class extends Component {
                                     type="text"
                                     readonly
                                     value="{{ $manualSetupKey }}"
+                                    aria-label="{{ __('Manual setup key') }}"
                                     class="w-full p-3 bg-transparent outline-none text-dark-900 dark:text-dark-100"
                                 />
 

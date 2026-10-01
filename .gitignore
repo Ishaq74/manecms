@@ -1,4 +1,8 @@
 /.phpunit.cache
+/.sheath-cache
+/.sloppy-health.json
+/sloppy-baseline.json
+/rector-sloppy.php
 /node_modules
 /public/build
 /public/fonts-manifest.dev.json
