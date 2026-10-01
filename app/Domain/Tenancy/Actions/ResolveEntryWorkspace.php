@@ -2,6 +2,7 @@
 
 namespace App\Domain\Tenancy\Actions;
 
+use App\Domain\Tenancy\Database\TenantDatabaseContext;
 use App\Domain\Tenancy\Models\Workspace;
 use App\Models\User;
 
@@ -13,7 +14,14 @@ use App\Models\User;
  */
 final class ResolveEntryWorkspace
 {
+    public function __construct(private readonly TenantDatabaseContext $database) {}
+
     public function __invoke(User $user): ?Workspace
+    {
+        return $this->database->runAs(null, $user->id, fn (): ?Workspace => $this->resolve($user));
+    }
+
+    private function resolve(User $user): ?Workspace
     {
         $remembered = Workspace::query()
             ->select('workspaces.*')

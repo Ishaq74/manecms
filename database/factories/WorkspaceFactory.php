@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Domain\Tenancy\Models\Tenant;
 use App\Domain\Tenancy\Models\Workspace;
+use Database\Factories\Concerns\BypassesRowSecurity;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -11,6 +12,9 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class WorkspaceFactory extends Factory
 {
+    /** @use BypassesRowSecurity<Workspace> */
+    use BypassesRowSecurity;
+
     protected $model = Workspace::class;
 
     /**

@@ -1,11 +1,12 @@
 <?php
 
 use App\Domain\Tenancy\Context\TenantContext;
+use App\Domain\Tenancy\Database\TenantDatabaseContext;
 use App\Domain\Tenancy\Enums\TenantRole;
 use App\Domain\Tenancy\Models\TenantMember;
 use App\Domain\Tenancy\Models\Workspace;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Concerns\RefreshDatabaseAsOwner;
 use Tests\TestCase;
 
 /*
@@ -20,7 +21,7 @@ use Tests\TestCase;
 */
 
 pest()->extend(TestCase::class)
-    ->use(RefreshDatabase::class)
+    ->use(RefreshDatabaseAsOwner::class)
     ->group('feature')
     ->in('Feature');
 
@@ -66,10 +67,12 @@ function something()
  */
 function joinWorkspace(TenantRole $role = TenantRole::Owner): array
 {
-    $member = TenantMember::factory()->create(['role' => $role]);
-    $workspace = Workspace::factory()->for($member->tenant)->create();
+    return asOwner(function () use ($role): array {
+        $member = TenantMember::factory()->create(['role' => $role]);
+        $workspace = Workspace::factory()->for($member->tenant)->create();
 
-    return [$member->user, $workspace, $member];
+        return [$member->user, $workspace, $member];
+    });
 }
 
 /**
@@ -78,4 +81,20 @@ function joinWorkspace(TenantRole $role = TenantRole::Owner): array
 function enterWorkspace(TenantMember $member, Workspace $workspace): void
 {
     app(TenantContext::class)->install($member, $workspace);
+}
+
+/**
+ * Run a callback as the table owner, outside row level security.
+ *
+ * For fixtures and for assertions about the whole database; application code
+ * under test never runs inside it.
+ *
+ * @template TResult
+ *
+ * @param  Closure(): TResult  $callback
+ * @return TResult
+ */
+function asOwner(Closure $callback): mixed
+{
+    return app(TenantDatabaseContext::class)->withoutRowSecurity($callback);
 }

@@ -92,12 +92,13 @@ it('refuses to archive the last active workspace', function (): void {
 it('forgets an archived workspace as the last one used', function (): void {
     [$user, $workspace, $member] = joinWorkspace();
     Workspace::factory()->for($member->tenant)->create();
-    $member->update(['last_workspace_id' => $workspace->id]);
+    asOwner(fn (): bool => $member->update(['last_workspace_id' => $workspace->id]));
+    expect(asOwner(fn (): ?string => $member->fresh()?->last_workspace_id))->toBe($workspace->id);
     enterWorkspace($member, $workspace);
 
     app(ArchiveWorkspace::class)($user, $workspace->id);
 
-    expect($member->fresh()?->last_workspace_id)->toBeNull();
+    expect(asOwner(fn (): ?string => $member->fresh()?->last_workspace_id))->toBeNull();
 });
 
 it('never reaches a workspace of another tenant through a forged identifier', function (): void {
@@ -108,9 +109,12 @@ it('never reaches a workspace of another tenant through a forged identifier', fu
     expect(fn () => app(RenameWorkspace::class)($user, $foreign->id, 'Hijacked'))
         ->toThrow(ModelNotFoundException::class)
         ->and(fn () => app(ArchiveWorkspace::class)($user, $foreign->id))
-        ->toThrow(ModelNotFoundException::class)
-        ->and($foreign->fresh()?->name)->not->toBe('Hijacked')
-        ->and($foreign->fresh()?->isArchived())->toBeFalse();
+        ->toThrow(ModelNotFoundException::class);
+
+    asOwner(function () use ($foreign): void {
+        expect($foreign->fresh()?->name)->toBe($foreign->name)
+            ->and($foreign->fresh()?->isArchived())->toBeFalse();
+    });
 });
 
 it('lets owners and admins rename the tenant', function (TenantRole $role): void {

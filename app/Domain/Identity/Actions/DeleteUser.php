@@ -2,6 +2,7 @@
 
 namespace App\Domain\Identity\Actions;
 
+use App\Domain\Tenancy\Database\TenantDatabaseContext;
 use App\Domain\Tenancy\Enums\TenantRole;
 use App\Models\User;
 use Illuminate\Validation\ValidationException;
@@ -12,8 +13,10 @@ use Illuminate\Validation\ValidationException;
  * Memberships of other roles go with the user through the foreign key cascade;
  * tenant data is never deleted with an account.
  */
-final class DeleteUser
+final readonly class DeleteUser
 {
+    public function __construct(private TenantDatabaseContext $database) {}
+
     /**
      * @param  callable(): mixed  $signOut  Runs once deletion is allowed, while the row still exists.
      *
@@ -21,7 +24,10 @@ final class DeleteUser
      */
     public function __invoke(User $user, callable $signOut): void
     {
-        if ($user->tenantMemberships()->where('role', TenantRole::Owner)->exists()) {
+        // Without an explicit user scope, row level security would hide the memberships and let the deletion through.
+        $ownsTenant = $this->database->runAs(null, $user->id, fn (): bool => $user->tenantMemberships()->where('role', TenantRole::Owner)->exists());
+
+        if ($ownsTenant) {
             throw ValidationException::withMessages([
                 'password' => __('You own a space. Transfer its ownership before deleting your account.'),
             ]);

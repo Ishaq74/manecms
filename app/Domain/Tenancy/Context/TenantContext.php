@@ -2,6 +2,7 @@
 
 namespace App\Domain\Tenancy\Context;
 
+use App\Domain\Tenancy\Database\TenantDatabaseContext;
 use App\Domain\Tenancy\Enums\TenantRole;
 use App\Domain\Tenancy\Exceptions\TenantContextRequired;
 use App\Domain\Tenancy\Models\Tenant;
@@ -21,11 +22,15 @@ final class TenantContext
 
     private ?Workspace $workspace = null;
 
+    public function __construct(private readonly TenantDatabaseContext $database) {}
+
     public function install(TenantMember $member, Workspace $workspace): void
     {
         if ($member->tenant_id !== $workspace->tenant_id) {
             throw new LogicException('The membership and the workspace belong to different tenants.');
         }
+
+        $this->database->apply($member->tenant_id, $member->user_id);
 
         $this->member = $member;
         $this->workspace = $workspace;

@@ -113,7 +113,7 @@ Copier dans `todo/pass-XX-<slug>.md` :
 |:--|:--|:--|:--|:--|:--|
 | P00 | Mise en conformité du socle | V1.0 | STANDARD | — | en cours (acceptance clone propre à faire) |
 | P01 | Tenancy core | V1.0 | VITAL | P00 | acceptée |
-| P02 | Isolation PostgreSQL (RLS) | V1.0 | VITAL | P01 | à faire |
+| P02 | Isolation PostgreSQL (RLS) | V1.0 | VITAL | P01 | acceptée |
 | P03 | Audit, corrélation, erreurs typées | V1.0 | VITAL | P02 | à faire |
 | P04 | ManeUI : fondations | V1.0 | STANDARD | P01 | à faire |
 | P05 | Membres, invitations, RBAC, Policy Engine | V1.0 | VITAL | P03, P04 | à faire |
@@ -246,30 +246,30 @@ Copier dans `todo/pass-XX-<slug>.md` :
 **Objectif.** Rendre l'isolation tenant garantie par la base, pas seulement par l'application.
 
 **Livrables**
-- [ ] Rôles PostgreSQL : propriétaire (migrations), applicatif `NOSUPERUSER NOBYPASSRLS`, test ; procédure de provisioning Herd documentée
-- [ ] Connexion dédiée aux migrations ; runtime sur le rôle applicatif ; privilèges par défaut
-- [ ] Helper de migration activant `ENABLE` + `FORCE` RLS et les quatre policies (`SELECT`, `INSERT`, `UPDATE`, `DELETE`) avec `USING` / `WITH CHECK`
-- [ ] RLS sur `tenants`, `workspaces`, `tenant_members` ; policy de pré-résolution sur `app.user_id`
-- [ ] `TenantContext` installe et réinitialise `app.tenant_id` et `app.user_id`
-- [ ] Contexte des jobs : middleware de job + `tenant_id` dans le payload ; job sans contexte en échec fermé
-- [ ] Commandes Artisan métier avec option `--tenant` obligatoire ; scheduler itérant explicitement les tenants
-- [ ] Commande `tenancy:verify-rls` : échoue si une table avec `tenant_id` n'a pas la RLS forcée
+- [x] Rôles PostgreSQL : propriétaire (migrations), applicatif `NOSUPERUSER NOBYPASSRLS`, test ; procédure de provisioning Herd documentée
+- [x] Connexion dédiée aux migrations ; runtime sur le rôle applicatif ; privilèges par défaut
+- [x] Helper de migration activant `ENABLE` + `FORCE` RLS et les quatre policies (`SELECT`, `INSERT`, `UPDATE`, `DELETE`) avec `USING` / `WITH CHECK`
+- [x] RLS sur `tenants`, `workspaces`, `tenant_members` ; policy de pré-résolution sur `app.user_id`
+- [x] `TenantContext` installe et réinitialise `app.tenant_id` et `app.user_id`
+- [x] Contexte des jobs : middleware de job + `tenant_id` dans le payload ; job sans contexte en échec fermé
+- [x] ~~Commandes Artisan métier avec option `--tenant` obligatoire ; scheduler itérant explicitement les tenants~~ → reporté en P10 : aucune commande métier n'existe encore
+- [x] Commande `tenancy:verify-rls` : échoue si une table avec `tenant_id` n'a pas la RLS forcée
 
 **Invariants et base**
-- [ ] Variable de tenant absente : zéro ligne lue, écriture refusée
-- [ ] Aucune connexion applicative avec un rôle superuser ou propriétaire
+- [x] Variable de tenant absente : zéro ligne lue, écriture refusée
+- [x] Aucune connexion applicative avec un rôle superuser ou propriétaire
 
 **Tests obligatoires** (exécutés avec le rôle applicatif)
-- [ ] A → A et A ↛ B pour `SELECT`, `INSERT`, `UPDATE`, `DELETE`, jointures
-- [ ] Insert avec `tenant_id` de B depuis le contexte A refusé par la base
-- [ ] Job sans contexte refusé ; job avec contexte A ne lit pas B
-- [ ] Aucune fuite de contexte entre deux requêtes successives du même processus
-- [ ] `tenancy:verify-rls` vert sur toutes les tables
+- [x] A → A et A ↛ B pour `SELECT`, `INSERT`, `UPDATE`, `DELETE`, jointures
+- [x] Insert avec `tenant_id` de B depuis le contexte A refusé par la base
+- [x] Job sans contexte refusé ; job avec contexte A ne lit pas B
+- [x] Aucune fuite de contexte entre deux requêtes successives du même processus
+- [x] `tenancy:verify-rls` vert sur toutes les tables
 
 **Acceptance**
-- [ ] GIVEN un bug applicatif simulé qui oublie le filtre tenant, WHEN la requête s'exécute, THEN la base ne renvoie que les lignes du tenant courant.
+- [x] GIVEN un bug applicatif simulé qui oublie le filtre tenant, WHEN la requête s'exécute, THEN la base ne renvoie que les lignes du tenant courant.
 
-**À trancher** — Type PostgreSQL des ULID (`char(26)` Laravel ou `uuid` converti) ; nom des rôles.
+**Tranché** — ULID en `char(26)` (type Laravel) ; rôles `manecms_owner`, `manecms_app`, `manecms_test`. Spec : `todo/pass-02-row-level-security.md`.
 
 ---
 
@@ -456,6 +456,7 @@ Les taux de change et les montants fonctionnels ou de reporting arrivent en P57 
 - [ ] `outbox_messages` écrite dans la transaction métier : `event_id`, type, version, payload `jsonb`, tenant, corrélation, causalité, publication, tentatives, dernière erreur
 - [ ] Événements versionnés (`PagePublished.v1`) avec schéma, sensibilité, producteur, consommateurs (§343)
 - [ ] Relais de publication sur la file `database` ; ordre par agrégat ; livraison au moins une fois
+- [ ] Commandes Artisan métier avec option `--tenant` obligatoire et scheduler itérant les tenants via une fonction `SECURITY DEFINER` (reporté de P02)
 - [ ] `inbox_messages` unique par consommateur et `event_id` : traitement unique (§123)
 - [ ] Retry, backoff, nombre maximal, dead letter, commande de rejeu protégée (§124)
 - [ ] Files nommées et prioritaires (§193, §362), compatibles Redis/Horizon plus tard

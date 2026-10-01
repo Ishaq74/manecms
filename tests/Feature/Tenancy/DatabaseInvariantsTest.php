@@ -8,9 +8,13 @@ use App\Models\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Database\UniqueConstraintViolationException;
 
+/*
+ * These invariants are enforced by constraints, independently of row level
+ * security, so every statement runs as the table owner.
+ */
+
 it('rejects a second owner for the same tenant', function (): void {
-    $tenant = Tenant::factory()->create();
-    TenantMember::factory()->owner()->for($tenant)->create();
+    $tenant = asOwner(fn () => TenantMember::factory()->owner()->create()->tenant);
 
     expect(fn () => TenantMember::factory()->owner()->for($tenant)->create())
         ->toThrow(UniqueConstraintViolationException::class);
@@ -29,7 +33,7 @@ it('rejects a last workspace that belongs to another tenant', function (): void 
     $member = TenantMember::factory()->member()->create();
     $foreignWorkspace = Workspace::factory()->create();
 
-    expect(fn () => $member->update(['last_workspace_id' => $foreignWorkspace->id]))
+    expect(fn () => asOwner(fn () => $member->update(['last_workspace_id' => $foreignWorkspace->id])))
         ->toThrow(fn (QueryException $exception) => expect($exception->getCode())->toBe('23503'));
 });
 
@@ -45,7 +49,7 @@ it('allows the same workspace name in two tenants', function (): void {
     Workspace::factory()->create(['name' => 'Marketing']);
     Workspace::factory()->create(['name' => 'Marketing']);
 
-    expect(Workspace::query()->where('name', 'Marketing')->count())->toBe(2);
+    expect(asOwner(fn (): int => Workspace::query()->where('name', 'Marketing')->count()))->toBe(2);
 });
 
 it('removes the memberships of a deleted user', function (): void {
@@ -53,12 +57,14 @@ it('removes the memberships of a deleted user', function (): void {
 
     User::query()->whereKey($member->user_id)->delete();
 
-    expect(TenantMember::query()->whereKey($member->id)->exists())->toBeFalse()
-        ->and(Tenant::query()->whereKey($member->tenant_id)->exists())->toBeTrue();
+    asOwner(function () use ($member): void {
+        expect(TenantMember::query()->whereKey($member->id)->exists())->toBeFalse()
+            ->and(Tenant::query()->whereKey($member->tenant_id)->exists())->toBeTrue();
+    });
 });
 
 it('stores the role as a typed enum', function (): void {
     $member = TenantMember::factory()->owner()->create();
 
-    expect($member->fresh()?->role)->toBe(TenantRole::Owner);
+    expect(asOwner(fn () => $member->fresh()?->role))->toBe(TenantRole::Owner);
 });

@@ -3,6 +3,7 @@
 namespace App\Domain\Tenancy\Actions;
 
 use App\Domain\Tenancy\Actions\Concerns\ValidatesNames;
+use App\Domain\Tenancy\Database\TenantDatabaseContext;
 use App\Domain\Tenancy\Enums\TenantRole;
 use App\Domain\Tenancy\Models\Tenant;
 use App\Domain\Tenancy\Models\Workspace;
@@ -17,6 +18,8 @@ use Illuminate\Validation\ValidationException;
 final class CreateTenant
 {
     use ValidatesNames;
+
+    public function __construct(private readonly TenantDatabaseContext $database) {}
 
     private const int MAX_PER_HOUR = 5;
 
@@ -37,8 +40,12 @@ final class CreateTenant
 
         $name = $this->validatedName($name);
 
-        $workspace = DB::transaction(function () use ($user, $name): Workspace {
-            $tenant = Tenant::query()->create(['name' => $name]);
+        $tenant = new Tenant(['name' => $name]);
+        $tenant->id = $tenant->newUniqueId();
+
+        // Row level security only accepts rows of the current tenant, so the new tenant becomes it.
+        $workspace = $this->database->runAs($tenant->id, $user->id, fn (): Workspace => DB::transaction(function () use ($tenant, $user, $name): Workspace {
+            $tenant->save();
             $workspace = $tenant->workspaces()->create(['name' => $name]);
 
             $tenant->members()->create([
@@ -48,7 +55,7 @@ final class CreateTenant
             ]);
 
             return $workspace;
-        });
+        }));
 
         RateLimiter::hit($rateLimiterKey, 3600);
 

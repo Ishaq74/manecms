@@ -24,9 +24,11 @@ it('creates the tenant, its first workspace and the owner membership together', 
         ->call('createTenant')
         ->assertHasNoErrors();
 
-    $tenant = Tenant::query()->sole();
-    $workspace = Workspace::query()->sole();
-    $member = TenantMember::query()->sole();
+    [$tenant, $workspace, $member] = asOwner(fn (): array => [
+        Tenant::query()->sole(),
+        Workspace::query()->sole(),
+        TenantMember::query()->sole(),
+    ]);
 
     expect($tenant->name)->toBe('Acme Studio')
         ->and($workspace->name)->toBe('Acme Studio')
@@ -44,8 +46,8 @@ it('writes nothing when the creation fails halfway', function (): void {
     expect(fn () => app(CreateTenant::class)(User::factory()->create(), 'Acme'))
         ->toThrow(RuntimeException::class, 'Simulated failure');
 
-    expect(Tenant::query()->count())->toBe(0)
-        ->and(TenantMember::query()->count())->toBe(0);
+    expect(asOwner(fn (): int => Tenant::query()->count()))->toBe(0)
+        ->and(asOwner(fn (): int => TenantMember::query()->count()))->toBe(0);
 });
 
 it('rejects names that are empty, too short or too long once spaces are normalised', function (string $name): void {
@@ -55,7 +57,7 @@ it('rejects names that are empty, too short or too long once spaces are normalis
         ->call('createTenant')
         ->assertHasErrors(['name']);
 
-    expect(Tenant::query()->count())->toBe(0);
+    expect(asOwner(fn (): int => Tenant::query()->count()))->toBe(0);
 })->with([
     'empty' => '',
     'spaces only' => '     ',
@@ -72,5 +74,5 @@ it('limits a user to five new tenants per hour', function (): void {
     }
 
     expect(fn () => $createTenant($user, 'Space 6'))->toThrow(ValidationException::class)
-        ->and(Tenant::query()->count())->toBe(5);
+        ->and(asOwner(fn (): int => Tenant::query()->count()))->toBe(5);
 });

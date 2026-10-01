@@ -29,8 +29,10 @@ it('deletes a member account and removes only its membership', function (): void
         ->assertHasNoErrors()
         ->assertRedirect('/');
 
-    expect(User::query()->whereKey($user->id)->exists())->toBeFalse()
-        ->and(TenantMember::query()->whereKey($member->id)->exists())->toBeFalse()
-        ->and(Tenant::query()->whereKey($member->tenant_id)->exists())->toBeTrue();
+    asOwner(function () use ($user, $member): void {
+        expect(User::query()->whereKey($user->id)->exists())->toBeFalse()
+            ->and(TenantMember::query()->whereKey($member->id)->exists())->toBeFalse()
+            ->and(Tenant::query()->whereKey($member->tenant_id)->exists())->toBeTrue();
+    });
     $this->assertGuest();
 });

@@ -6,6 +6,7 @@ use App\Domain\Tenancy\Enums\TenantRole;
 use App\Domain\Tenancy\Models\Tenant;
 use App\Domain\Tenancy\Models\TenantMember;
 use App\Models\User;
+use Database\Factories\Concerns\BypassesRowSecurity;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -13,6 +14,9 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class TenantMemberFactory extends Factory
 {
+    /** @use BypassesRowSecurity<TenantMember> */
+    use BypassesRowSecurity;
+
     protected $model = TenantMember::class;
 
     /**

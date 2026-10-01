@@ -33,7 +33,7 @@ it('answers 404 to a malformed workspace identifier', function (): void {
 
 it('answers 404 to an archived workspace', function (): void {
     [$user, $workspace] = joinWorkspace();
-    $workspace->forceFill(['archived_at' => now()])->save();
+    asOwner(fn (): bool => $workspace->forceFill(['archived_at' => now()])->save());
 
     $this->actingAs($user)
         ->get(route('workspace.home', $workspace))
@@ -52,7 +52,7 @@ it('remembers the workspace a member opens', function (): void {
 
     $this->actingAs($user)->get(route('workspace.home', $other))->assertOk();
 
-    expect($member->fresh()?->last_workspace_id)->toBe($other->id)
+    expect(asOwner(fn (): ?string => $member->fresh()?->last_workspace_id))->toBe($other->id)
         ->and($workspace->id)->not->toBe($other->id);
 });
 

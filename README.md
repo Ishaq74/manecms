@@ -24,9 +24,20 @@ Redis, Meilisearch, S3 et Reverb sont activés par la passe qui en a besoin (cah
 
 Prérequis : [Laravel Herd](https://herd.laravel.com) avec PostgreSQL, Node.js et pnpm.
 
-```bash
-composer setup
-```
+1. Copier `.env.example` en `.env`, renseigner `DB_SUPERUSER_USERNAME` et `DB_SUPERUSER_PASSWORD` (le superuser PostgreSQL de Herd) et choisir les mots de passe `DB_OWNER_PASSWORD`, `DB_APP_PASSWORD` et `DB_TEST_PASSWORD`.
+2. Créer les bases `manecms` et `manecms_testing`, puis les rôles (une seule fois) :
+
+    ```bash
+    herd php artisan database:provision --database=manecms --database=manecms_testing
+    ```
+
+3. Installer :
+
+    ```bash
+    composer setup
+    ```
+
+L'application se connecte avec `manecms_app`, soumis à la RLS PostgreSQL. Les migrations et les seeders s'exécutent automatiquement avec `manecms_owner`. La suite de tests utilise `manecms_test`, lui aussi soumis à la RLS.
 
 Le site est servi par Herd sur `https://manecms.test`. Pour les assets en développement :
 
@@ -68,7 +79,7 @@ Chaque passe a ses livrables, invariants, tests et critères d'acceptation déta
 
 - [ ] **P00** Mise en conformité du socle
 - [x] **P01** Tenancy core — dépend de P00
-- [ ] **P02** Isolation PostgreSQL (RLS) — P01
+- [x] **P02** Isolation PostgreSQL (RLS) — P01
 - [ ] **P03** Audit, corrélation, erreurs typées — P02
 - [ ] **P04** ManeUI : fondations — P01
 - [ ] **P05** Membres, invitations, RBAC, Policy Engine — P03, P04

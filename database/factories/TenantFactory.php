@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Domain\Tenancy\Models\Tenant;
+use Database\Factories\Concerns\BypassesRowSecurity;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -10,6 +11,9 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class TenantFactory extends Factory
 {
+    /** @use BypassesRowSecurity<Tenant> */
+    use BypassesRowSecurity;
+
     protected $model = Tenant::class;
 
     /**
