@@ -3,14 +3,13 @@
 ])
 
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" x-data="tallstackui_darkTheme({ default: 'dark' })">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}"
+      x-data="tallstackui_darkTheme({ default: 'dark' })"
+      x-bind:class="darkTheme ? 'dark' : ''">
     <head>
         @include('partials.head')
     </head>
-    <body
-        class="min-h-svh bg-white text-zinc-800 antialiased dark:bg-zinc-900 dark:text-zinc-100"
-        x-bind:class="darkTheme ? 'dark' : ''"
-    >
+    <body class="min-h-svh bg-white text-zinc-800 antialiased dark:bg-zinc-900 dark:text-zinc-100">
         <div {{ $attributes->class('flex min-h-svh flex-col') }}>
             @include('partials.header')
 
