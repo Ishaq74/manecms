@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use RuntimeException;
 
 class DatabaseSeeder extends Seeder
 {
@@ -16,9 +17,9 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->account(
-            name: 'Ishaq',
-            email: 'ishaq.achour@gmail.com',
-            password: 'Sofia+123',
+            name: $this->localValue('username'),
+            email: $this->localValue('email'),
+            password: $this->localValue('password'),
         );
 
         $this->account(
@@ -26,6 +27,28 @@ class DatabaseSeeder extends Seeder
             email: 'guest@manecms.test',
             password: 'Guest+123',
         );
+    }
+
+    /**
+     * Read one value of the local account from the configuration.
+     *
+     * None of them is stored in the repository. Failing loudly matters here: a
+     * missing password would leave an account that anyone can log into, so the
+     * seeder stops instead of falling back to something guessable.
+     *
+     * @throws RuntimeException
+     */
+    protected function localValue(string $key): string
+    {
+        $value = config("database.seeder.local.{$key}");
+
+        if (! is_string($value) || $value === '') {
+            throw new RuntimeException(
+                sprintf('SEEDER_%s is required to seed the local account. Add it to .env.', strtoupper($key)),
+            );
+        }
+
+        return $value;
     }
 
     /**

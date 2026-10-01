@@ -181,4 +181,23 @@ return [
 
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Local Seeder Account
+    |--------------------------------------------------------------------------
+    |
+    | DatabaseSeeder creates this account so a fresh install has someone to log
+    | in as. Its credentials stay out of the repository: the seeder refuses to
+    | run without them rather than falling back to a guessable default.
+    |
+    */
+
+    'seeder' => [
+        'local' => [
+            'username' => env('SEEDER_USERNAME'),
+            'email' => env('SEEDER_EMAIL'),
+            'password' => env('SEEDER_PASSWORD'),
+        ],
+    ],
+
 ];
