@@ -75,6 +75,7 @@ inventer des règles métier qui dépendent des passes précédentes et de choix
 
 - [ ] Gates verts : `herd php artisan migrate:fresh`, `herd php artisan test --compact`, `herd php bin/check.php --full`, `pnpm run build`, CI
 - [ ] Critères d'acceptance de la passe démontrés (Given/When/Then + preuve)
+- [ ] Seeds locaux enrichis pour montrer la passe sur le site (`herd php artisan db:seed`, idempotent, local uniquement)
 - [ ] ADR rédigés, cahier et feuille de route mis à jour, cases cochées
 
 ---
@@ -202,6 +203,7 @@ Copier dans `todo/pass-XX-<slug>.md` :
 - [x] `APP_LOCALE=fr`, `APP_FALLBACK_LOCALE=en`, `APP_FAKER_LOCALE=fr_FR` ; `lang/fr.json` couvre auth, settings et shell existants
 - [x] PHPStan `level: max` sans baseline ; erreurs corrigées (§210)
 - [x] `bin/check.php` : type coverage avec `--min=100` (§209)
+- [x] `bin/check.php` : étapes Sloppy (`--fail-on=info`) et Sheath (`sheath:lint --dry-run --max-warnings=0`), exécutées aussi en CI
 - [x] Suite `Architecture` déclarée dans `phpunit.xml` : presets Pest `php`, `security`, `laravel` ; aucune référence à Flux dans `composer.json`, `composer.lock` et les sources (§284)
 - [x] Registre de propriété des tables `config/domains.php` + test : toute table de la base appartient à un contexte (§371)
 - [x] Groupes Pest conventionnels (§292)
@@ -229,6 +231,7 @@ Copier dans `todo/pass-XX-<slug>.md` :
 - [x] Onboarding tenant + premier workspace ; création, renommage, archivage, bascule de workspace
 - [x] Policies, matrice d'autorisation, 404 pour les non-membres
 - [x] Blocage de suppression de compte pour un owner
+- [x] Seeder local idempotent : espaces ManeCMS et Studio Atlas, rôles owner, admin et member, un workspace archivé
 - [x] `context.md` Tenancy, ADR 0002 modèle de tenancy
 
 **Acceptance**

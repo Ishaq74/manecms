@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Domain\Tenancy\Actions\CreateTenant;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -23,14 +22,14 @@ class DatabaseSeeder extends Seeder
             password: $this->localValue('password'),
         );
 
-        $this->account(
+        $guestAccount = $this->account(
             name: 'Guest',
             email: 'guest@manecms.test',
             password: 'Guest+123',
         );
 
-        if (app()->environment('local') && ! $localAccount->tenantMemberships()->exists()) {
-            app(CreateTenant::class)($localAccount, 'ManeCMS');
+        if (app()->environment('local')) {
+            $this->call(TenancySeeder::class, parameters: ['owner' => $localAccount, 'guest' => $guestAccount]);
         }
     }
 

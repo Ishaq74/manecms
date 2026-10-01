@@ -37,12 +37,27 @@ pnpm run dev
 ## Qualité
 
 ```bash
-herd php bin/check.php          # Pint, Rector, PHPStan, Pest
+herd php bin/check.php          # Pint, Rector, PHPStan, Sloppy, Sheath, Pest
 herd php bin/check.php --full   # + PHP Insights et type coverage
-herd php bin/check.php --fix    # corrige le style et applique Rector
+herd php bin/check.php --fix    # corrige le style, applique Rector et les corrections Sheath
 herd php artisan test --compact
 pnpm run build
 ```
+
+## Données locales
+
+```bash
+herd php artisan db:seed
+```
+
+En environnement `local`, le seeder crée (sans doublon s'il est relancé) :
+
+- le compte défini par `SEEDER_USERNAME`, `SEEDER_EMAIL` et `SEEDER_PASSWORD` dans `.env` ;
+- le compte `guest@manecms.test` ;
+- l'espace **ManeCMS** (workspaces ManeCMS, Site vitrine, Marketing et un archivé) : votre compte en est owner, Guest member ;
+- l'espace **Studio Atlas** (workspaces Studio Atlas et Clients) : Guest en est owner, votre compte admin.
+
+Chaque passe enrichit ces données pour que ses fonctionnalités soient visibles sur le site.
 
 ## Roadmap
 

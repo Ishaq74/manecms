@@ -13,7 +13,7 @@ use RuntimeException;
  *   herd php bin/check.php [options]
  *
  * Options:
- *   --fix            Write changes (Pint and Rector both stop reporting and start writing)
+ *   --fix            Write changes (Pint, Rector and Sheath stop reporting and start writing)
  *   --dirty          Restrict Pint, PHPStan and Pest to files changed according to Git
  *   --full           Also run PHP Insights and Pest type coverage (slow)
  *   --only=<stages>  Comma separated list of stages to run (implies skipping the others)
@@ -29,6 +29,8 @@ final class CheckRunner
         'pint' => 'Laravel Pint — code style',
         'rector' => 'Rector — automated refactoring (dry run)',
         'phpstan' => 'PHPStan + Larastan — static analysis',
+        'sloppy' => 'Sloppy — risky code patterns',
+        'sheath' => 'Sheath — Blade and HTML lint (dry run)',
         'pest' => 'Pest — Unit and Feature test suites',
         'insights' => 'PHP Insights — code quality score (--full)',
         'type-coverage' => 'Pest — type coverage of arguments (--full)',
@@ -41,6 +43,8 @@ final class CheckRunner
         'pint' => 'vendor/bin/pint',
         'rector' => 'vendor/bin/rector',
         'phpstan' => 'vendor/bin/phpstan',
+        'sloppy' => 'vendor/bin/sloppy',
+        'sheath' => null,
         'pest' => 'vendor/bin/pest',
         'insights' => null,
         'type-coverage' => 'vendor/bin/pest',
@@ -181,6 +185,11 @@ final class CheckRunner
                 $this->wantsFix() ? [] : ['--dry-run'],
             ),
             'phpstan' => array_merge([PHP_BINARY, 'vendor/bin/phpstan', 'analyse', '--no-progress'], $dirty),
+            'sloppy' => [PHP_BINARY, 'vendor/bin/sloppy', '--no-interaction', '--fail-on=info'],
+            'sheath' => array_merge(
+                [PHP_BINARY, 'artisan', 'sheath:lint', '--max-warnings=0'],
+                $this->wantsFix() ? ['--fix'] : ['--dry-run'],
+            ),
             'pest' => array_merge([PHP_BINARY, 'vendor/bin/pest'], $dirty),
             'insights' => [PHP_BINARY, 'artisan', 'insights'],
             'type-coverage' => [
@@ -301,7 +310,7 @@ final class CheckRunner
     private function printHelp(): void
     {
         $options = [
-            '--fix' => 'Write changes (Pint and Rector both stop reporting and start writing)',
+            '--fix' => 'Write changes (Pint, Rector and Sheath stop reporting and start writing)',
             '--dirty' => 'Only look at files changed according to Git',
             '--full' => 'Also run insights and type-coverage',
             '--only=<stages>' => 'Run only these stages',
