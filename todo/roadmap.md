@@ -110,7 +110,7 @@ Copier dans `todo/pass-XX-<slug>.md` :
 
 | ID | Passe | Train | Tier | Dépend de | Statut |
 |:--|:--|:--|:--|:--|:--|
-| P00 | Mise en conformité du socle | V1.0 | STANDARD | — | en cours (CI à valider) |
+| P00 | Mise en conformité du socle | V1.0 | STANDARD | — | en cours (acceptance clone propre à faire) |
 | P01 | Tenancy core | V1.0 | VITAL | P00 | spec prête |
 | P02 | Isolation PostgreSQL (RLS) | V1.0 | VITAL | P01 | à faire |
 | P03 | Audit, corrélation, erreurs typées | V1.0 | VITAL | P02 | à faire |
@@ -211,7 +211,7 @@ Copier dans `todo/pass-XX-<slug>.md` :
 
 **Tests et preuves**
 - [x] Tests d'architecture verts ; un import Flux factice fait échouer la suite
-- [ ] CI verte sur la branche principale
+- [x] CI verte sur la branche principale
 - [x] Test de registre : une table non déclarée fait échouer la suite
 
 **Acceptance**
