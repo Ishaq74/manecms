@@ -52,7 +52,7 @@ jobs:
       - name: Validate Composer
         run: |
           composer validate --strict
-          composer audit
+          composer audit --locked
 
       - name: Setup Application
         run: |
