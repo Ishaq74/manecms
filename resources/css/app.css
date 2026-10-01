@@ -47,3 +47,24 @@
         border-color: var(--color-gray-200, currentColor);
     }
 }
+
+/*
+ |--------------------------------------------------------------------------
+ | Theme switch without the cloak
+ |--------------------------------------------------------------------------
+ |
+ | Both x-theme-switch variations ship x-cloak on their root, and Tailwind
+ | turns that into display: none. The switch is a plain button, so hiding it
+ | only delays it: it pops in after Alpine boots and shifts the header.
+ |
+ | x-theme-switch does not forward attributes to its root, so both variations
+ | are matched from the inside: the simple one by its role="switch" button, the
+ | segmented one by the setAs() handlers it renders on each of its buttons.
+ | The segmented markup wraps those buttons in one extra div, hence the
+ | descendant selector rather than a child one.
+ |
+ */
+[x-cloak]:has(button[role='switch']),
+[x-cloak]:has(button[x-on\:click^='setAs(']) {
+    display: revert;
+}

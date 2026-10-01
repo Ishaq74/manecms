@@ -1,8 +1,7 @@
 {{-- App pages with the collapsible sidebar: dashboard, settings, admin. --}}
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}"
-      x-data="tallstackui_darkTheme({ default: 'dark' })"
-      x-bind:class="darkTheme ? 'dark' : ''">
+      x-data="tallstackui_darkTheme({ default: 'dark' })">
     <head>
         @include('partials.head')
     </head>

@@ -6,23 +6,71 @@
 </title>
 
 {{--
-    Applies the persisted theme before the first paint.
+    Owns the dark theme class. Three jobs:
 
-    The `dark` variant is scoped to `.dark`, and the class is bound by Alpine at
-    runtime. Alpine only boots after the document has been parsed, so without
-    this the page would paint in the light theme and then flip.
+    1. apply the persisted mode before the first paint, otherwise the page
+       renders light then flips once Alpine boots (FOUC)
+    2. apply every later change, driven by the `theme` event the switch
+       dispatches. The event does not bubble, so it is caught in the capture
+       phase, which still reaches the target
+    3. follow changes made in another tab
 
-    Mirrors the resolution of the tallstackui_darkTheme helper, which stores the
-    mode under the same "dark-theme" key and defaults to dark here.
+    The class deliberately lives here and nowhere else: binding it with Alpine
+    on <html> puts it at the mercy of that element being morphed, and a lost
+    binding makes the switch look dead until the next reload.
+
+    Mirrors tallstackui_darkTheme, which stores the mode under "dark-theme" and
+    is what x-theme-switch writes to.
 --}}
 <script>
     (() => {
-        const mode = localStorage.getItem('dark-theme') ?? 'dark';
-        const resolved = ['light', 'dark', 'system'].includes(mode) ? mode : 'dark';
-        const dark = resolved === 'dark'
-            || (resolved !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        const STORAGE_KEY = 'dark-theme';
+        const DEFAULT_MODE = 'dark';
 
-        document.documentElement.classList.toggle('dark', dark);
+        const read = () => {
+            try {
+                return localStorage.getItem(STORAGE_KEY);
+            } catch (exception) {
+                return null;
+            }
+        };
+
+        const resolve = (mode) => {
+            const resolved = ['light', 'dark', 'system'].includes(mode) ? mode : DEFAULT_MODE;
+
+            return resolved === 'system'
+                ? window.matchMedia('(prefers-color-scheme: dark)').matches
+                : resolved === 'dark';
+        };
+
+        const apply = (mode) => document.documentElement.classList.toggle('dark', resolve(mode));
+
+        const stored = read() ?? DEFAULT_MODE;
+        apply(stored);
+
+        document.addEventListener('theme', (event) => {
+            const { mode, darkTheme } = event.detail ?? {};
+
+            if (typeof darkTheme === 'boolean') {
+                document.documentElement.classList.toggle('dark', darkTheme);
+            }
+
+            if (mode) {
+                apply(mode);
+            }
+        }, true);
+
+        window.addEventListener('storage', (event) => {
+            if (event.key === STORAGE_KEY) {
+                apply(event.newValue ?? DEFAULT_MODE);
+            }
+        });
+
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+            if ((read() ?? DEFAULT_MODE) === 'system') {
+                apply('system');
+            }
+        });
     })();
 </script>
 
