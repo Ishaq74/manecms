@@ -2,11 +2,13 @@
 
 namespace App\Domain\Tenancy\Actions;
 
+use App\Domain\Audit\AuditLog;
 use App\Domain\Tenancy\Actions\Concerns\ValidatesNames;
 use App\Domain\Tenancy\Context\TenantContext;
 use App\Domain\Tenancy\Models\Tenant;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
 
@@ -14,7 +16,10 @@ final readonly class RenameTenant
 {
     use ValidatesNames;
 
-    public function __construct(private TenantContext $context) {}
+    public function __construct(
+        private TenantContext $context,
+        private AuditLog $audit,
+    ) {}
 
     /**
      * @throws AuthorizationException
@@ -26,7 +31,13 @@ final readonly class RenameTenant
 
         Gate::forUser($user)->authorize('update', $tenant);
 
-        $tenant->update(['name' => $this->validatedName($name)]);
+        $name = $this->validatedName($name);
+        $before = $tenant->name;
+
+        DB::transaction(function () use ($tenant, $name, $before, $user): void {
+            $tenant->update(['name' => $name]);
+            $this->audit->record('tenancy.tenant.renamed', $tenant, ['name' => $before], ['name' => $name], actorId: $user->id);
+        });
 
         return $tenant;
     }

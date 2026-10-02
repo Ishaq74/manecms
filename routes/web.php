@@ -26,6 +26,7 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
         Route::livewire('workspaces/create', 'pages::workspaces.create')->name('workspace.create');
         Route::livewire('settings', 'pages::workspaces.settings')->name('workspace.settings');
         Route::livewire('tenant/settings', 'pages::tenants.settings')->name('tenant.settings');
+        Route::livewire('audit', 'pages::audit.index')->name('audit.index');
     });
 });
 

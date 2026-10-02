@@ -114,7 +114,7 @@ Copier dans `todo/pass-XX-<slug>.md` :
 | P00 | Mise en conformité du socle | V1.0 | STANDARD | — | en cours (acceptance clone propre à faire) |
 | P01 | Tenancy core | V1.0 | VITAL | P00 | acceptée |
 | P02 | Isolation PostgreSQL (RLS) | V1.0 | VITAL | P01 | acceptée |
-| P03 | Audit, corrélation, erreurs typées | V1.0 | VITAL | P02 | à faire |
+| P03 | Audit, corrélation, erreurs typées | V1.0 | VITAL | P02 | acceptée |
 | P04 | ManeUI : fondations | V1.0 | STANDARD | P01 | à faire |
 | P05 | Membres, invitations, RBAC, Policy Engine | V1.0 | VITAL | P03, P04 | à faire |
 | P06 | Back-office opérateur | V1.0 | STANDARD | P05 | à faire |
@@ -278,26 +278,28 @@ Copier dans `todo/pass-XX-<slug>.md` :
 `VITAL` · Dépend : P02 · Cahier : §153, §154, §191, §263, §264, §325, §367, §368, §385, §392, §473
 
 **Livrables**
-- [ ] Table `audit_events` : acteur, action, sujet, `before` et `after` en `jsonb`, raison, source (http, cli, queue, api, ai), IP, user agent, `correlation_id`, `causation_id`, `occurred_at`, `tenant_id` (nullable pour les événements plateforme)
-- [ ] Append-only : trigger refusant `UPDATE` et `DELETE`, privilèges révoqués pour le rôle applicatif ; tentative journalisée en alerte
-- [ ] RLS sur `audit_events`
-- [ ] `AuditLog::record()` écrit dans la transaction de l'action
-- [ ] Redaction avant écriture et dans les logs : mots de passe, tokens, secrets (§367, §385)
-- [ ] Middleware de corrélation (`X-Correlation-ID` validé ou généré), propagé aux logs, jobs, réponses
-- [ ] Logs structurés JSON avec `request_id`, `correlation_id`, `tenant_id`, `user_id` (§191)
-- [ ] Erreurs métier typées avec code stable (§263), rendu HTTP, toast Livewire, page d'erreur avec référence (§392)
-- [ ] Branchement de l'audit sur les actions P01 et les événements d'authentification (connexion, échec, déconnexion, 2FA, mot de passe)
-- [ ] UI d'audit owner/admin : liste filtrable, détail avant/après (§473)
+- [x] Table `audit_events` : acteur, action, sujet, `before` et `after` en `jsonb`, raison, source (http, cli, queue, api, ai), IP, user agent, `correlation_id`, `causation_id`, `occurred_at`, `tenant_id` (nullable pour les événements plateforme)
+- [x] Append-only : trigger refusant `UPDATE` et `DELETE`, privilèges révoqués pour le rôle applicatif ; tentative journalisée en alerte
+- [x] RLS sur `audit_events`
+- [x] `AuditLog::record()` écrit dans la transaction de l'action
+- [x] Redaction avant écriture et dans les logs : mots de passe, tokens, secrets (§367, §385)
+- [x] Middleware de corrélation (`X-Correlation-ID` validé ou généré), propagé aux logs, jobs, réponses
+- [x] Logs structurés JSON avec `request_id`, `correlation_id`, `tenant_id`, `user_id` (§191)
+- [x] Erreurs métier typées avec code stable (§263), rendu HTTP, toast Livewire, page d'erreur avec référence (§392)
+- [x] Branchement de l'audit sur les actions P01 et les événements d'authentification (connexion, échec, déconnexion, 2FA, mot de passe)
+- [x] UI d'audit owner/admin : liste filtrable, détail avant/après (§473)
 
 **Tests obligatoires**
-- [ ] `UPDATE` et `DELETE` sur `audit_events` refusés par la base
-- [ ] Rollback de l'action : aucun audit écrit
-- [ ] Secrets absents de l'audit et des logs
-- [ ] Corrélation identique de la requête au job et à l'audit
-- [ ] Audit du tenant B invisible depuis A
+- [x] `UPDATE` et `DELETE` sur `audit_events` refusés par la base
+- [x] Rollback de l'action : aucun audit écrit
+- [x] Secrets absents de l'audit et des logs
+- [x] Corrélation identique de la requête au job et à l'audit
+- [x] Audit du tenant B invisible depuis A
 
 **Acceptance**
-- [ ] GIVEN un admin qui renomme un workspace, WHEN l'owner ouvre l'audit, THEN il voit qui, quoi, quand, avant, après et la corrélation.
+- [x] GIVEN un admin qui renomme un workspace, WHEN l'owner ouvre l'audit, THEN il voit qui, quoi, quand, avant, après et la corrélation.
+
+**Tranché** — Audit plateforme (`tenant_id` nul) en écriture seule ; lecture opérateurs reportée en P06, rétention et pseudonymisation en P36, expédition des logs et alertes en P39, sources `api` et `ai` en P34 et P35. Spec : `todo/pass-03-audit-correlation-errors.md`.
 
 ---
 

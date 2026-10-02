@@ -2,9 +2,11 @@
 
 namespace App\Domain\Identity\Actions;
 
+use App\Domain\Audit\AuditLog;
 use App\Domain\Tenancy\Database\TenantDatabaseContext;
 use App\Domain\Tenancy\Enums\TenantRole;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -15,7 +17,10 @@ use Illuminate\Validation\ValidationException;
  */
 final readonly class DeleteUser
 {
-    public function __construct(private TenantDatabaseContext $database) {}
+    public function __construct(
+        private TenantDatabaseContext $database,
+        private AuditLog $audit,
+    ) {}
 
     /**
      * @param  callable(): mixed  $signOut  Runs once deletion is allowed, while the row still exists.
@@ -35,6 +40,9 @@ final readonly class DeleteUser
 
         $signOut();
 
-        $user->delete();
+        DB::transaction(function () use ($user): void {
+            $this->audit->record('identity.account.deleted', $user, actorId: $user->id, platform: true);
+            $user->delete();
+        });
     }
 }

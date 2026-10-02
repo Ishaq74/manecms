@@ -18,18 +18,23 @@ final class TenantRowSecurity
 
     public const string CURRENT_USER = "nullif(current_setting('app.user_id', true), '')::bigint";
 
-    public static function enable(string $table, string $tenantColumn = 'tenant_id', ?string $extraReadPredicate = null): void
-    {
+    public static function enable(
+        string $table,
+        string $tenantColumn = 'tenant_id',
+        ?string $extraReadPredicate = null,
+        ?string $extraInsertPredicate = null,
+    ): void {
         self::guard($table);
         self::guard($tenantColumn);
 
         $writable = "{$tenantColumn} = ".self::CURRENT_TENANT;
         $readable = $extraReadPredicate === null ? $writable : "({$writable}) OR ({$extraReadPredicate})";
+        $insertable = $extraInsertPredicate === null ? $writable : "({$writable}) OR ({$extraInsertPredicate})";
 
         DB::statement("ALTER TABLE {$table} ENABLE ROW LEVEL SECURITY");
         DB::statement("ALTER TABLE {$table} FORCE ROW LEVEL SECURITY");
         DB::statement("CREATE POLICY {$table}_tenant_select ON {$table} FOR SELECT USING ({$readable})");
-        DB::statement("CREATE POLICY {$table}_tenant_insert ON {$table} FOR INSERT WITH CHECK ({$writable})");
+        DB::statement("CREATE POLICY {$table}_tenant_insert ON {$table} FOR INSERT WITH CHECK ({$insertable})");
         DB::statement("CREATE POLICY {$table}_tenant_update ON {$table} FOR UPDATE USING ({$writable}) WITH CHECK ({$writable})");
         DB::statement("CREATE POLICY {$table}_tenant_delete ON {$table} FOR DELETE USING ({$writable})");
     }

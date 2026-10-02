@@ -27,6 +27,8 @@ return [
         'sessions' => 'Identity',
         'users' => 'Identity',
 
+        'audit_events' => 'Audit',
+
         'tenant_members' => 'Tenancy',
         'tenants' => 'Tenancy',
         'workspaces' => 'Tenancy',

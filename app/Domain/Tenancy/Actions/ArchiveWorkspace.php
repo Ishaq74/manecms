@@ -2,6 +2,7 @@
 
 namespace App\Domain\Tenancy\Actions;
 
+use App\Domain\Audit\AuditLog;
 use App\Domain\Tenancy\Context\TenantContext;
 use App\Domain\Tenancy\Models\Tenant;
 use App\Domain\Tenancy\Models\TenantMember;
@@ -15,7 +16,10 @@ use Illuminate\Validation\ValidationException;
 
 final readonly class ArchiveWorkspace
 {
-    public function __construct(private TenantContext $context) {}
+    public function __construct(
+        private TenantContext $context,
+        private AuditLog $audit,
+    ) {}
 
     /**
      * @throws AuthorizationException
@@ -29,7 +33,7 @@ final readonly class ArchiveWorkspace
 
         Gate::forUser($user)->authorize('archive', $workspace);
 
-        DB::transaction(function () use ($tenant, $workspace): void {
+        DB::transaction(function () use ($tenant, $workspace, $user): void {
             // Locking the tenant row serialises concurrent archives of its last two workspaces.
             Tenant::query()->whereKey($tenant->id)->lockForUpdate()->sole();
 
@@ -47,6 +51,8 @@ final readonly class ArchiveWorkspace
             TenantMember::query()
                 ->where('last_workspace_id', $workspace->id)
                 ->update(['last_workspace_id' => null]);
+
+            $this->audit->record('tenancy.workspace.archived', $workspace, ['archived' => false], ['archived' => true], actorId: $user->id);
         });
 
         return $workspace;

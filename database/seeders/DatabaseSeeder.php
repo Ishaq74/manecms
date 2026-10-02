@@ -30,6 +30,7 @@ class DatabaseSeeder extends Seeder
 
         if (app()->environment('local')) {
             $this->call(TenancySeeder::class, parameters: ['owner' => $localAccount, 'guest' => $guestAccount]);
+            $this->call(AuditSeeder::class);
         }
     }
 

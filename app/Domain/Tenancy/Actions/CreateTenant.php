@@ -2,6 +2,7 @@
 
 namespace App\Domain\Tenancy\Actions;
 
+use App\Domain\Audit\AuditLog;
 use App\Domain\Tenancy\Actions\Concerns\ValidatesNames;
 use App\Domain\Tenancy\Database\TenantDatabaseContext;
 use App\Domain\Tenancy\Enums\TenantRole;
@@ -19,7 +20,10 @@ final class CreateTenant
 {
     use ValidatesNames;
 
-    public function __construct(private readonly TenantDatabaseContext $database) {}
+    public function __construct(
+        private readonly TenantDatabaseContext $database,
+        private readonly AuditLog $audit,
+    ) {}
 
     private const int MAX_PER_HOUR = 5;
 
@@ -53,6 +57,9 @@ final class CreateTenant
                 'role' => TenantRole::Owner,
                 'last_workspace_id' => $workspace->id,
             ]);
+
+            $this->audit->record('tenancy.tenant.created', $tenant, after: ['name' => $name], actorId: $user->id);
+            $this->audit->record('tenancy.workspace.created', $workspace, after: ['name' => $name], actorId: $user->id);
 
             return $workspace;
         }));

@@ -2,8 +2,10 @@
 
 namespace App\Domain\Tenancy\Database;
 
+use App\Domain\Platform\Observability\RequestContext;
 use Closure;
 use Illuminate\Database\DatabaseManager;
+use Illuminate\Support\Facades\Context;
 use InvalidArgumentException;
 
 /**
@@ -28,6 +30,9 @@ final class TenantDatabaseContext
         );
 
         $this->dirty = $tenantId !== null || $userId !== null;
+
+        $tenantId === null ? Context::forget(RequestContext::TENANT_ID) : Context::add(RequestContext::TENANT_ID, $tenantId);
+        $userId === null ? Context::forget(RequestContext::USER_ID) : Context::add(RequestContext::USER_ID, $userId);
     }
 
     public function clear(): void

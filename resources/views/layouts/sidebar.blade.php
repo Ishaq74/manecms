@@ -36,6 +36,15 @@
                             />
                         @endcan
 
+                        @can('viewAny', \App\Domain\Audit\Models\AuditEvent::class)
+                            <x-side-bar.item
+                                icon="shield-check"
+                                :href="route('audit.index', $tenantContext->workspace())"
+                                :current="request()->routeIs('audit.index')"
+                                :text="__('Audit')"
+                            />
+                        @endcan
+
                         @can('update', $tenantContext->tenant())
                             <x-side-bar.item
                                 icon="building-office"

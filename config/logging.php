@@ -1,5 +1,7 @@
 <?php
 
+use App\Domain\Platform\Observability\RedactLogRecord;
+use Monolog\Formatter\JsonFormatter;
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
@@ -54,7 +56,7 @@ return [
 
         'stack' => [
             'driver' => 'stack',
-            'channels' => explode(',', (string) env('LOG_STACK', 'single')),
+            'channels' => explode(',', (string) env('LOG_STACK', 'single,json')),
             'ignore_exceptions' => false,
         ],
 
@@ -63,6 +65,17 @@ return [
             'path' => storage_path('logs/laravel.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'replace_placeholders' => true,
+            'processors' => [RedactLogRecord::class],
+        ],
+
+        // Structured logs (todo/todo.md §191): Context adds correlation, request, tenant and user ids.
+        'json' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/laravel.json'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'formatter' => JsonFormatter::class,
+            'replace_placeholders' => true,
+            'processors' => [RedactLogRecord::class],
         ],
 
         'daily' => [
