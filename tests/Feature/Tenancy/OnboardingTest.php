@@ -1,7 +1,7 @@
 <?php
 
+use App\Domain\Authorization\Enums\SystemRole;
 use App\Domain\Tenancy\Actions\CreateTenant;
-use App\Domain\Tenancy\Enums\TenantRole;
 use App\Domain\Tenancy\Models\Tenant;
 use App\Domain\Tenancy\Models\TenantMember;
 use App\Domain\Tenancy\Models\Workspace;
@@ -27,14 +27,14 @@ it('creates the tenant, its first workspace and the owner membership together', 
     [$tenant, $workspace, $member] = asOwner(fn (): array => [
         Tenant::query()->sole(),
         Workspace::query()->sole(),
-        TenantMember::query()->sole(),
+        TenantMember::query()->with('role')->sole(),
     ]);
 
     expect($tenant->name)->toBe('Acme Studio')
         ->and($workspace->name)->toBe('Acme Studio')
         ->and($workspace->tenant_id)->toBe($tenant->id)
         ->and($member->user_id)->toBe($user->id)
-        ->and($member->role)->toBe(TenantRole::Owner)
+        ->and($member->role->system_key)->toBe(SystemRole::Owner)
         ->and($member->last_workspace_id)->toBe($workspace->id);
 
     $component->assertRedirect(route('workspace.home', $workspace));

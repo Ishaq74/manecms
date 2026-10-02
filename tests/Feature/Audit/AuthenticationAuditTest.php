@@ -21,7 +21,8 @@ it('records successful and failed sign-ins and sign-outs', function (): void {
     $this->post(route('login.store'), ['email' => $user->email, 'password' => 'password']);
     $this->post(route('logout'));
 
-    expect(auditedActions())->toBe(['identity.login.failed', 'identity.login.succeeded', 'identity.logout']);
+    // The first sign-in also records the device it came from.
+    expect(auditedActions())->toBe(['identity.login.failed', 'identity.device.recorded', 'identity.login.succeeded', 'identity.logout']);
 
     $failed = asOwner(fn () => AuditEvent::query()->where('action', 'identity.login.failed')->sole());
 

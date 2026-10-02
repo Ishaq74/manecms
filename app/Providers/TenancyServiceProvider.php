@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Domain\Authorization\Http\Middleware\EnsureTenantMfa;
 use App\Domain\Tenancy\Console\VerifyRowSecurity;
 use App\Domain\Tenancy\Context\TenantContext;
 use App\Domain\Tenancy\Database\TenantDatabaseContext;
@@ -19,7 +20,7 @@ class TenancyServiceProvider extends ServiceProvider
      * Commands that change the schema or write fixtures, run as the table owner.
      */
     private const array OWNER_COMMANDS = [
-        'db:seed', 'db:wipe', 'migrate', 'migrate:fresh', 'migrate:install',
+        'authorization:sync-permissions', 'db:seed', 'db:wipe', 'migrate', 'migrate:fresh', 'migrate:install',
         'migrate:refresh', 'migrate:reset', 'migrate:rollback', 'migrate:status',
     ];
 
@@ -34,7 +35,7 @@ class TenancyServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Livewire update requests replay this middleware, so actions run inside the same tenant context.
-        Livewire::addPersistentMiddleware([ResolveWorkspace::class]);
+        Livewire::addPersistentMiddleware([ResolveWorkspace::class, EnsureTenantMfa::class]);
 
         if ($this->app->runningInConsole()) {
             $this->commands([VerifyRowSecurity::class]);

@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Domain\Audit\Models\AuditEvent;
 use App\Domain\Platform\Models\SavedTableView;
-use App\Domain\Tenancy\Enums\TenantRole;
 use App\Domain\Tenancy\Models\Tenant;
 use App\Domain\Tenancy\Models\Workspace;
 use Illuminate\Database\Seeder;
@@ -25,7 +24,7 @@ class AuditSeeder extends Seeder
     public function run(): void
     {
         Tenant::query()->with(['workspaces', 'members'])->each(function (Tenant $tenant): void {
-            $ownerId = $tenant->members->firstWhere('role', TenantRole::Owner)?->user_id;
+            $ownerId = $tenant->members->firstWhere('is_owner', true)?->user_id;
 
             $this->seedCreation($tenant, $ownerId);
             $this->seedHistory($tenant, $ownerId);

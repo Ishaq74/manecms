@@ -27,10 +27,17 @@ return [
         'password_reset_tokens' => 'Identity',
         'personal_access_tokens' => 'Identity',
         'sessions' => 'Identity',
+        'user_devices' => 'Identity',
         'users' => 'Identity',
 
         'audit_events' => 'Audit',
 
+        'permissions' => 'Authorization',
+        'role_permissions' => 'Authorization',
+        'roles' => 'Authorization',
+
+        'tenant_invitations' => 'Tenancy',
+        'tenant_member_workspaces' => 'Tenancy',
         'tenant_members' => 'Tenancy',
         'tenants' => 'Tenancy',
         'workspaces' => 'Tenancy',

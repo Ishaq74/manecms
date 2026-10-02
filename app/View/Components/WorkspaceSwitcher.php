@@ -7,14 +7,13 @@ use App\Domain\Tenancy\Models\Tenant;
 use App\Domain\Tenancy\Models\Workspace;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\Component;
 
 /**
- * Lists the active workspaces of every tenant the user belongs to.
+ * Lists the workspaces the user may open, grouped by active tenant.
  */
 class WorkspaceSwitcher extends Component
 {
@@ -40,10 +39,13 @@ class WorkspaceSwitcher extends Component
             return new Collection;
         }
 
-        return Tenant::query()
-            ->whereHas('members', fn (Builder $query): Builder => $query->where('user_id', $user->id))
-            ->with('activeWorkspaces')
-            ->orderBy('name')
-            ->get();
+        $workspaces = Workspace::query()->accessibleBy($user->id)->with('tenant')->orderBy('name')->get();
+
+        return new Collection($workspaces
+            ->groupBy('tenant_id')
+            ->map(fn (Collection $group): Tenant => $group->firstOrFail()->tenant->setRelation('activeWorkspaces', $group))
+            ->sortBy('name')
+            ->values()
+            ->all());
     }
 }

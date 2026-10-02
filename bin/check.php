@@ -193,7 +193,8 @@ final class CheckRunner
                 $this->wantsFix() ? ['--fix'] : ['--dry-run'],
             ),
             // The browser suite runs in its own process: its in-process HTTP server stalls after the full suite.
-            'pest' => array_merge([PHP_BINARY, 'vendor/bin/pest', '--exclude-testsuite=Browser'], $dirty),
+            // The architecture presets load every class: the default 128 MB is not enough.
+            'pest' => array_merge([PHP_BINARY, '-d', 'memory_limit=1G', 'vendor/bin/pest', '--exclude-testsuite=Browser'], $dirty),
             'browser' => [PHP_BINARY, 'vendor/bin/pest', '--testsuite=Browser'],
             'insights' => [PHP_BINARY, 'artisan', 'insights'],
             'type-coverage' => [

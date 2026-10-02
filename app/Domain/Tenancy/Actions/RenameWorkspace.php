@@ -3,15 +3,16 @@
 namespace App\Domain\Tenancy\Actions;
 
 use App\Domain\Audit\AuditLog;
+use App\Domain\Authorization\Errors\AuthorizationDenied;
+use App\Domain\Authorization\PolicyEngine;
 use App\Domain\Tenancy\Actions\Concerns\ValidatesNames;
 use App\Domain\Tenancy\Context\TenantContext;
 use App\Domain\Tenancy\Models\Workspace;
+use App\Domain\Tenancy\Permissions\TenancyPermission;
 use App\Models\User;
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
 
 final readonly class RenameWorkspace
@@ -21,10 +22,11 @@ final readonly class RenameWorkspace
     public function __construct(
         private TenantContext $context,
         private AuditLog $audit,
+        private PolicyEngine $engine,
     ) {}
 
     /**
-     * @throws AuthorizationException
+     * @throws AuthorizationDenied
      * @throws ModelNotFoundException<Workspace>
      * @throws ValidationException
      */
@@ -33,7 +35,7 @@ final readonly class RenameWorkspace
         $tenant = $this->context->tenant();
         $workspace = $tenant->workspaces()->findOrFail($workspaceId);
 
-        Gate::forUser($user)->authorize('update', $workspace);
+        $this->engine->authorize($user, TenancyPermission::WorkspaceUpdate, $workspace);
 
         $name = $this->validatedName($name);
         $this->ensureWorkspaceNameIsFree($tenant, $name, $workspace->id);

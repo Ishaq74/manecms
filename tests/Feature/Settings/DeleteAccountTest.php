@@ -1,13 +1,13 @@
 <?php
 
-use App\Domain\Tenancy\Enums\TenantRole;
+use App\Domain\Authorization\Enums\SystemRole;
 use App\Domain\Tenancy\Models\Tenant;
 use App\Domain\Tenancy\Models\TenantMember;
 use App\Models\User;
 use Livewire\Livewire;
 
 it('refuses to delete the account of a tenant owner', function (): void {
-    [$user] = joinWorkspace(TenantRole::Owner);
+    [$user] = joinWorkspace(SystemRole::Owner);
 
     Livewire::actingAs($user)
         ->test('pages::settings.delete-user-modal')
@@ -20,7 +20,7 @@ it('refuses to delete the account of a tenant owner', function (): void {
 });
 
 it('deletes a member account and removes only its membership', function (): void {
-    [$user, , $member] = joinWorkspace(TenantRole::Member);
+    [$user, , $member] = joinWorkspace(SystemRole::Member);
 
     Livewire::actingAs($user)
         ->test('pages::settings.delete-user-modal')

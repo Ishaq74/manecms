@@ -13,6 +13,9 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::livewire('settings/appearance', 'pages::settings.appearance')
         ->name('appearance.edit');
 
+    Route::livewire('settings/sessions', 'pages::settings.sessions')
+        ->name('sessions.index');
+
     Route::livewire('settings/security', 'pages::settings.security')
         ->middleware([
             'password.confirm',

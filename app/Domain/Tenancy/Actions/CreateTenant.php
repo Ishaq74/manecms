@@ -3,9 +3,10 @@
 namespace App\Domain\Tenancy\Actions;
 
 use App\Domain\Audit\AuditLog;
+use App\Domain\Authorization\Actions\ProvisionSystemRoles;
+use App\Domain\Authorization\Enums\SystemRole;
 use App\Domain\Tenancy\Actions\Concerns\ValidatesNames;
 use App\Domain\Tenancy\Database\TenantDatabaseContext;
-use App\Domain\Tenancy\Enums\TenantRole;
 use App\Domain\Tenancy\Models\Tenant;
 use App\Domain\Tenancy\Models\Workspace;
 use App\Models\User;
@@ -23,6 +24,7 @@ final class CreateTenant
     public function __construct(
         private readonly TenantDatabaseContext $database,
         private readonly AuditLog $audit,
+        private readonly ProvisionSystemRoles $provisionSystemRoles,
     ) {}
 
     private const int MAX_PER_HOUR = 5;
@@ -51,10 +53,11 @@ final class CreateTenant
         $workspace = $this->database->runAs($tenant->id, $user->id, fn (): Workspace => DB::transaction(function () use ($tenant, $user, $name): Workspace {
             $tenant->save();
             $workspace = $tenant->workspaces()->create(['name' => $name]);
+            $roles = ($this->provisionSystemRoles)($tenant->id);
 
             $tenant->members()->create([
                 'user_id' => $user->id,
-                'role' => TenantRole::Owner,
+                'role_id' => $roles[SystemRole::Owner->value]->id,
                 'last_workspace_id' => $workspace->id,
             ]);
 

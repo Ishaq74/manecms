@@ -1,16 +1,16 @@
 <?php
 
+use App\Domain\Authorization\Enums\SystemRole;
+use App\Domain\Authorization\Errors\AuthorizationDenied;
 use App\Domain\Tenancy\Actions\ArchiveWorkspace;
 use App\Domain\Tenancy\Actions\RenameWorkspace;
-use App\Domain\Tenancy\Enums\TenantRole;
 use App\Domain\Tenancy\Models\Workspace;
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Livewire\Livewire;
 
-dataset('managers', [TenantRole::Owner, TenantRole::Admin]);
+dataset('managers', [SystemRole::Owner, SystemRole::Admin]);
 
-it('lets owners and admins create a workspace', function (TenantRole $role): void {
+it('lets owners and admins create a workspace', function (SystemRole $role): void {
     [$user, $workspace, $member] = joinWorkspace($role);
     enterWorkspace($member, $workspace);
 
@@ -23,7 +23,7 @@ it('lets owners and admins create a workspace', function (TenantRole $role): voi
     expect($member->tenant->workspaces()->where('name', 'Design')->exists())->toBeTrue();
 })->with('managers');
 
-it('lets owners and admins rename and archive a workspace', function (TenantRole $role): void {
+it('lets owners and admins rename and archive a workspace', function (SystemRole $role): void {
     [$user, $workspace, $member] = joinWorkspace($role);
     $second = Workspace::factory()->for($member->tenant)->create();
     enterWorkspace($member, $second);
@@ -43,7 +43,7 @@ it('lets owners and admins rename and archive a workspace', function (TenantRole
 })->with('managers');
 
 it('forbids members from the workspace management pages', function (string $routeName): void {
-    [$user, $workspace] = joinWorkspace(TenantRole::Member);
+    [$user, $workspace] = joinWorkspace(SystemRole::Member);
 
     $this->actingAs($user)
         ->get(route($routeName, $workspace))
@@ -51,14 +51,14 @@ it('forbids members from the workspace management pages', function (string $rout
 })->with(['workspace.create', 'workspace.settings', 'tenant.settings']);
 
 it('forbids members from renaming or archiving a workspace', function (): void {
-    [$user, $workspace, $member] = joinWorkspace(TenantRole::Member);
+    [$user, $workspace, $member] = joinWorkspace(SystemRole::Member);
     Workspace::factory()->for($member->tenant)->create();
     enterWorkspace($member, $workspace);
 
     expect(fn () => app(RenameWorkspace::class)($user, $workspace->id, 'Renamed'))
-        ->toThrow(AuthorizationException::class)
+        ->toThrow(AuthorizationDenied::class)
         ->and(fn () => app(ArchiveWorkspace::class)($user, $workspace->id))
-        ->toThrow(AuthorizationException::class)
+        ->toThrow(AuthorizationDenied::class)
         ->and($workspace->fresh()?->name)->not->toBe('Renamed')
         ->and($workspace->fresh()?->isArchived())->toBeFalse();
 });
@@ -117,7 +117,7 @@ it('never reaches a workspace of another tenant through a forged identifier', fu
     });
 });
 
-it('lets owners and admins rename the tenant', function (TenantRole $role): void {
+it('lets owners and admins rename the tenant', function (SystemRole $role): void {
     [$user, $workspace, $member] = joinWorkspace($role);
     enterWorkspace($member, $workspace);
 

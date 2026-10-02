@@ -116,7 +116,7 @@ Copier dans `todo/pass-XX-<slug>.md` :
 | P02 | Isolation PostgreSQL (RLS) | V1.0 | VITAL | P01 | acceptée |
 | P03 | Audit, corrélation, erreurs typées | V1.0 | VITAL | P02 | acceptée |
 | P04 | ManeUI : fondations | V1.0 | STANDARD | P01 | acceptée |
-| P05 | Membres, invitations, RBAC, Policy Engine | V1.0 | VITAL | P03, P04 | à faire |
+| P05 | Membres, invitations, RBAC, Policy Engine | V1.0 | VITAL | P03, P04 | acceptée |
 | P06 | Back-office opérateur | V1.0 | STANDARD | P05 | à faire |
 | P07 | Localisation et temps | V1.0 | STANDARD | P04 | à faire |
 | P08 | Money et Quantity | V1.0 | VITAL | P04 | à faire |
@@ -337,31 +337,33 @@ Les composants spécialisés arrivent avec la passe qui en a besoin : dates (P07
 `VITAL` · Dépend : P03, P04 · Cahier : §16.3, §20, §21, §28, §28.1, §29, §30, §378
 
 **Livrables**
-- [ ] Invitations : email normalisé, rôle, token haché, expiration 7 jours, révocation ; une seule invitation en attente par email et tenant
-- [ ] Email d'invitation ; acceptation par compte existant ou inscription ; l'email doit correspondre
-- [ ] Liste des membres, changement de rôle, retrait, départ volontaire
-- [ ] Transfert de propriété atomique, confirmé par mot de passe et 2FA si active
-- [ ] RBAC §28.1 : permissions déclarées en code et synchronisées, rôles par tenant, rôles système non supprimables ; migration expand/contract de `tenant_members.role`
-- [ ] Restriction d'un membre à certains workspaces
-- [ ] Policy Engine : décisions `ALLOW`, `ALLOW_WITH_CONSTRAINTS`, `DENY`, `REQUIRE_APPROVAL` ; `REQUIRE_APPROVAL` répond `APPROVAL_REQUIRED` jusqu'à P15
-- [ ] Capabilities §30 et règle SoD « créateur ≠ approbateur » déclarable par permission
-- [ ] Archivage du tenant par l'owner
-- [ ] Sessions et appareils : liste, révocation, alerte de nouvelle connexion
-- [ ] MFA exigible par tenant pour owner et admin (§378)
+- [x] Invitations : email normalisé, rôle, token haché, expiration 7 jours, révocation ; une seule invitation en attente par email et tenant
+- [x] Email d'invitation ; acceptation par compte existant ou inscription ; l'email doit correspondre
+- [x] Liste des membres, changement de rôle, retrait, départ volontaire
+- [x] Transfert de propriété atomique, confirmé par mot de passe et 2FA si active
+- [x] RBAC §28.1 : permissions déclarées en code et synchronisées, rôles par tenant, rôles système non supprimables ; migration expand/contract de `tenant_members.role`
+- [x] Restriction d'un membre à certains workspaces
+- [x] Policy Engine : décisions `ALLOW`, `ALLOW_WITH_CONSTRAINTS`, `DENY`, `REQUIRE_APPROVAL` ; `REQUIRE_APPROVAL` répond `APPROVAL_REQUIRED` jusqu'à P15
+- [x] Capabilities §30 et règle SoD « créateur ≠ approbateur » déclarable par permission
+- [x] Archivage du tenant par l'owner
+- [x] Sessions et appareils : liste, révocation, alerte de nouvelle connexion
+- [x] MFA exigible par tenant pour owner et admin (§378)
 
 **Invariants et base**
-- [ ] Un seul owner (existant), une invitation en attente par email et tenant, noms de rôles uniques par tenant, clés de permission uniques
+- [x] Un seul owner (existant), une invitation en attente par email et tenant, noms de rôles uniques par tenant, clés de permission uniques
 
 **Tests obligatoires**
-- [ ] Invitation expirée, révoquée, réutilisée ou acceptée avec un autre email : refus
-- [ ] Escalade : un admin ne se donne pas owner, un member n'invite pas
-- [ ] Deux transferts de propriété simultanés : un seul aboutit
-- [ ] Restriction de workspace appliquée sur toutes les routes et requêtes Livewire
-- [ ] MFA imposée ; session révoquée inutilisable
-- [ ] IDOR sur les identifiants de membres et d'invitations ; audit de chaque action
+- [x] Invitation expirée, révoquée, réutilisée ou acceptée avec un autre email : refus
+- [x] Escalade : un admin ne se donne pas owner, un member n'invite pas
+- [x] Deux transferts de propriété simultanés : un seul aboutit
+- [x] Restriction de workspace appliquée sur toutes les routes et requêtes Livewire
+- [x] MFA imposée ; session révoquée inutilisable
+- [x] IDOR sur les identifiants de membres et d'invitations ; audit de chaque action
 
 **Acceptance**
-- [ ] GIVEN un admin, WHEN il tente de se promouvoir owner, THEN la décision est `DENY` et l'audit contient la tentative.
+- [x] GIVEN un admin, WHEN il tente de se promouvoir owner, THEN la décision est `DENY` et l'audit contient la tentative.
+
+**Tranché** — Nouveau contexte `Authorization` (permissions en énumérations par contexte, `config/authorization.php`, synchronisation après chaque `migrate`) ; `is_owner` calculé par trigger ; refus audité avant l'exception ; garde-fou « pas de rôle plus riche que le sien » sous l'owner ; jeton d'invitation lu par une fonction `SECURITY DEFINER` ; une invitation expirée est fermée avant d'en créer une nouvelle ; un invité sans compte s'inscrit puis rouvre le lien (redirection `intended`) ; identifiants de session jamais exposés (hash). Reporté : approbations réelles (P15), rôle plateforme (P06), outbox des emails (P10), pseudonymisation de l'acteur supprimé (P36). Spec : `todo/pass-05-members-rbac-policy-engine.md`, ADR 0003.
 
 ---
 

@@ -1,10 +1,10 @@
 <?php
 
-use App\Domain\Tenancy\Enums\TenantRole;
+use App\Domain\Authorization\Enums\SystemRole;
 use Livewire\Livewire;
 
 it('summarises validation errors and keeps the field values', function (): void {
-    [$user, $workspace, $member] = joinWorkspace(TenantRole::Owner);
+    [$user, $workspace, $member] = joinWorkspace(SystemRole::Owner);
     enterWorkspace($member, $workspace);
 
     Livewire::actingAs($user)
@@ -16,7 +16,7 @@ it('summarises validation errors and keeps the field values', function (): void 
 });
 
 it('discards unsaved changes and errors on reset', function (): void {
-    [$user, $workspace, $member] = joinWorkspace(TenantRole::Owner);
+    [$user, $workspace, $member] = joinWorkspace(SystemRole::Owner);
     enterWorkspace($member, $workspace);
 
     Livewire::actingAs($user)
@@ -31,7 +31,7 @@ it('discards unsaved changes and errors on reset', function (): void {
 });
 
 it('flags unsaved changes and busy submissions in the form markup', function (): void {
-    [$user, $workspace, $member] = joinWorkspace(TenantRole::Owner);
+    [$user, $workspace, $member] = joinWorkspace(SystemRole::Owner);
     enterWorkspace($member, $workspace);
 
     Livewire::actingAs($user)

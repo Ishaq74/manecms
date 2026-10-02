@@ -3,15 +3,16 @@
 namespace App\Domain\Tenancy\Actions;
 
 use App\Domain\Audit\AuditLog;
+use App\Domain\Authorization\Errors\AuthorizationDenied;
+use App\Domain\Authorization\PolicyEngine;
 use App\Domain\Tenancy\Context\TenantContext;
 use App\Domain\Tenancy\Models\Tenant;
 use App\Domain\Tenancy\Models\TenantMember;
 use App\Domain\Tenancy\Models\Workspace;
+use App\Domain\Tenancy\Permissions\TenancyPermission;
 use App\Models\User;
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
 
 final readonly class ArchiveWorkspace
@@ -19,10 +20,11 @@ final readonly class ArchiveWorkspace
     public function __construct(
         private TenantContext $context,
         private AuditLog $audit,
+        private PolicyEngine $engine,
     ) {}
 
     /**
-     * @throws AuthorizationException
+     * @throws AuthorizationDenied
      * @throws ModelNotFoundException<Workspace>
      * @throws ValidationException
      */
@@ -31,7 +33,7 @@ final readonly class ArchiveWorkspace
         $tenant = $this->context->tenant();
         $workspace = $tenant->workspaces()->active()->findOrFail($workspaceId);
 
-        Gate::forUser($user)->authorize('archive', $workspace);
+        $this->engine->authorize($user, TenancyPermission::WorkspaceArchive, $workspace);
 
         DB::transaction(function () use ($tenant, $workspace, $user): void {
             // Locking the tenant row serialises concurrent archives of its last two workspaces.

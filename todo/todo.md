@@ -1268,6 +1268,10 @@ CanDelete
 - Attribution au niveau du tenant, restreignable à des workspaces.
 - Les Laravel Policies délèguent au Policy Engine ; aucun test de rôle par chaîne dans les vues ou les composants.
 - Le Policy Engine combine RBAC, attributs (ABAC), capabilities (§30) et SoD (§29) et rend `ALLOW`, `ALLOW_WITH_CONSTRAINTS`, `DENY` ou `REQUIRE_APPROVAL`.
+- Le code est la source de vérité des permissions : chaque contexte les déclare dans une énumération listée dans `config/authorization.php` ; `authorization:sync-permissions` (lancée aussi après chaque `migrate`) les copie en base, où le rôle applicatif ne peut que les lire.
+- `is_owner` est dérivé du rôle système `owner` par trigger ; un index unique partiel garantit un owner par tenant. Personne ne devient owner hors transfert de propriété.
+- Ordre d'évaluation fixe et raisons de refus stables (`DenialReason`) ; un refus sur une action est audité (`authorization.denied`) avant de lever `AUTHORIZATION_DENIED` (403). `REQUIRE_APPROVAL` lève `APPROVAL_REQUIRED` (409) jusqu'aux approbations (P15).
+- Sous l'owner, personne n'attribue ni ne gère un rôle plus riche que le sien ; un admin ne gère ni l'owner ni un autre admin. Décision : `docs/adr/0003-authorization-policy-engine.md`.
 
 ---
 

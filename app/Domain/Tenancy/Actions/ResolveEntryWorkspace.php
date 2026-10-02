@@ -9,7 +9,8 @@ use App\Models\User;
 /**
  * Picks the workspace a user lands on after signing in.
  *
- * The workspace used most recently wins. Otherwise the oldest active workspace
+ * Only workspaces the user may open count (archived tenants and workspace
+ * restrictions excluded). The workspace used most recently wins. Otherwise the oldest active workspace
  * of the oldest membership is used, so the choice never depends on row order.
  */
 final class ResolveEntryWorkspace
@@ -27,7 +28,7 @@ final class ResolveEntryWorkspace
             ->select('workspaces.*')
             ->join('tenant_members', 'tenant_members.last_workspace_id', '=', 'workspaces.id')
             ->where('tenant_members.user_id', $user->id)
-            ->whereNull('workspaces.archived_at')
+            ->accessibleBy($user->id)
             ->orderByDesc('tenant_members.updated_at')
             ->orderByDesc('tenant_members.id')
             ->first();
@@ -36,7 +37,7 @@ final class ResolveEntryWorkspace
             ->select('workspaces.*')
             ->join('tenant_members', 'tenant_members.tenant_id', '=', 'workspaces.tenant_id')
             ->where('tenant_members.user_id', $user->id)
-            ->whereNull('workspaces.archived_at')
+            ->accessibleBy($user->id)
             ->orderBy('tenant_members.created_at')
             ->orderBy('tenant_members.id')
             ->orderBy('workspaces.created_at')

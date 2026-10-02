@@ -1,19 +1,19 @@
 <?php
 
-use App\Domain\Tenancy\Enums\TenantRole;
+use App\Domain\Authorization\Enums\SystemRole;
 use App\Domain\Tenancy\Exceptions\TenantContextRequired;
 use App\Domain\Tenancy\Models\Workspace;
 use App\Models\User;
 use Livewire\Livewire;
 
-it('shows a workspace to every member of its tenant', function (TenantRole $role): void {
+it('shows a workspace to every member of its tenant', function (SystemRole $role): void {
     [$user, $workspace] = joinWorkspace($role);
 
     $this->actingAs($user)
         ->get(route('workspace.home', $workspace))
         ->assertOk()
         ->assertSee($workspace->name);
-})->with(TenantRole::cases());
+})->with(SystemRole::cases());
 
 it('answers 404 to a user outside the tenant', function (): void {
     [, $workspace] = joinWorkspace();

@@ -1,25 +1,25 @@
 <?php
 
 use App\Domain\Audit\Models\AuditEvent;
-use App\Domain\Tenancy\Enums\TenantRole;
+use App\Domain\Authorization\Enums\SystemRole;
 use App\Domain\Tenancy\Models\TenantMember;
 use App\Domain\Tenancy\Models\Workspace;
 use Livewire\Livewire;
 
-it('lets owners and admins open the audit of their space', function (TenantRole $role): void {
+it('lets owners and admins open the audit of their space', function (SystemRole $role): void {
     [$user, $workspace] = joinWorkspace($role);
 
     $this->actingAs($user)->get(route('audit.index', $workspace))->assertOk();
-})->with([TenantRole::Owner, TenantRole::Admin]);
+})->with([SystemRole::Owner, SystemRole::Admin]);
 
 it('forbids members from the audit', function (): void {
-    [$user, $workspace] = joinWorkspace(TenantRole::Member);
+    [$user, $workspace] = joinWorkspace(SystemRole::Member);
 
     $this->actingAs($user)->get(route('audit.index', $workspace))->assertForbidden();
 });
 
 it('shows who renamed a workspace, when, what changed and the correlation', function (): void {
-    [$owner, $workspace, $ownerMembership] = joinWorkspace(TenantRole::Owner);
+    [$owner, $workspace, $ownerMembership] = joinWorkspace(SystemRole::Owner);
 
     $admin = asOwner(function () use ($ownerMembership): TenantMember {
         $admin = TenantMember::factory()->admin()->create(['tenant_id' => $ownerMembership->tenant_id]);
@@ -53,7 +53,7 @@ it('shows who renamed a workspace, when, what changed and the correlation', func
 });
 
 it('filters the audit by action and by correlation', function (): void {
-    [$owner, $workspace, $member] = joinWorkspace(TenantRole::Owner);
+    [$owner, $workspace, $member] = joinWorkspace(SystemRole::Owner);
 
     asOwner(function () use ($member): void {
         AuditEvent::factory()->create(['tenant_id' => $member->tenant_id, 'action' => 'tenancy.workspace.created', 'correlation_id' => 'first-correlation']);

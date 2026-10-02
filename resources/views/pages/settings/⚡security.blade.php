@@ -176,6 +176,10 @@ new #[Layout('layouts::sidebar')] #[Title('Security settings')] class extends Co
 }; ?>
 
 <x-pages::settings.layout :heading="__('Update password')" :subheading="__('Ensure your account is using a long, random password to stay secure')">
+    @if (request()->query('required') === 'mfa')
+        <x-mane::alert tone="warning" :title="__('Two-factor authentication required')" :text="__('One of your spaces requires two-factor authentication. Enable it below to open it again.')" data-test="mfa-required-notice" />
+    @endif
+
     <x-mane::form wire:submit="updatePassword" :dirty-notice="false">
         <x-mane::password wire:model="current_password" :label="__('Current password')" required autocomplete="current-password" />
 

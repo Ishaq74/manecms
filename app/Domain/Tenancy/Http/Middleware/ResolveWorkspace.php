@@ -13,8 +13,9 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * Installs the tenant context from the {workspace} route parameter.
  *
- * Unknown, archived and foreign workspaces all answer 404, so a user outside
- * the tenant cannot tell whether a workspace exists.
+ * Unknown, archived and foreign workspaces, archived tenants and workspaces
+ * the member is restricted from all answer 404, so a user outside them cannot
+ * tell whether a workspace exists.
  */
 final readonly class ResolveWorkspace
 {
@@ -35,9 +36,10 @@ final readonly class ResolveWorkspace
         $workspace = Workspace::query()->active()->find($workspaceId);
         $member = $workspace === null
             ? null
-            : $user->tenantMemberships()->where('tenant_id', $workspace->tenant_id)->first();
+            : $user->tenantMemberships()->with('tenant')->where('tenant_id', $workspace->tenant_id)->first();
 
-        if ($workspace === null || $member === null) {
+        // A member restricted to other workspaces cannot tell this one exists either.
+        if ($workspace === null || $member === null || $member->tenant->isArchived() || ! $member->allowsWorkspace($workspace->id)) {
             abort(404);
         }
 

@@ -1,7 +1,9 @@
 <?php
 
 use App\Domain\Audit\Models\AuditEvent;
-use App\Domain\Tenancy\Enums\TenantRole;
+use App\Domain\Authorization\Enums\SystemRole;
+use App\Domain\Tenancy\Models\TenantInvitation;
+use App\Domain\Tenancy\Models\TenantMember;
 use App\Domain\Tenancy\Models\Workspace;
 use App\Models\User;
 
@@ -17,9 +19,11 @@ const PAGE_DOES_NOT_OVERFLOW = 'document.documentElement.scrollWidth <= document
  */
 function signInOwnerWithAudit(): Workspace
 {
-    [$user, $workspace, $member] = joinWorkspace(TenantRole::Owner);
+    [$user, $workspace, $member] = joinWorkspace(SystemRole::Owner);
 
     asOwner(fn () => AuditEvent::factory()->count(3)->create(['tenant_id' => $member->tenant_id]));
+    TenantMember::factory()->admin()->for($member->tenant)->create();
+    TenantInvitation::factory()->for($member->tenant)->create(['email' => 'pending@example.test']);
 
     test()->actingAs($user);
 
@@ -39,6 +43,10 @@ it('has no serious accessibility issue on the application pages, dark and light'
         'workspace' => route('workspace.home', $workspace),
         'settings' => route('profile.edit'),
         'audit' => route('audit.index', $workspace),
+        'members' => route('members.index', $workspace),
+        'roles' => route('roles.index', $workspace),
+        'space settings' => route('tenant.settings', $workspace),
+        'sessions' => route('sessions.index'),
         'catalogue' => route('mane.catalog'),
     };
 
@@ -49,7 +57,27 @@ it('has no serious accessibility issue on the application pages, dark and light'
         ->assertScript("document.documentElement.classList.contains('dark') === ".($mode === 'dark' ? 'true' : 'false'))
         ->assertNoJavaScriptErrors()
         ->assertNoAccessibilityIssues();
-})->with(['workspace', 'settings', 'audit', 'catalogue'])->with(['dark', 'light']);
+})->with(['workspace', 'settings', 'audit', 'members', 'roles', 'space settings', 'sessions', 'catalogue'])->with(['dark', 'light']);
+
+it('opens the invitation and member dialogs without accessibility issues', function (): void {
+    $workspace = signInOwnerWithAudit();
+
+    visit(route('members.index', $workspace))
+        ->click('@invite-member-button')
+        ->assertSee('Send the invitation')
+        ->assertNoAccessibilityIssues()
+        ->assertNoJavaScriptErrors();
+});
+
+it('shows an invitation to its recipient without accessibility issues', function (): void {
+    $invitation = TenantInvitation::factory()->withToken(str_repeat('t', 48))->create(['email' => 'invitee@example.test']);
+    test()->actingAs(User::factory()->create(['email' => 'invitee@example.test']));
+
+    visit(route('invitations.show', ['invitation' => $invitation->id, 'token' => str_repeat('t', 48)]))
+        ->assertSee('Join the space')
+        ->assertNoJavaScriptErrors()
+        ->assertNoAccessibilityIssues();
+});
 
 it('walks the login form with the keyboard and keeps the focus visible', function (): void {
     $page = visit(route('login'))->keys('input[name="email"]', 'Tab');

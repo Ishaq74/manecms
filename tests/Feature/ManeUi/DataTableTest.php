@@ -1,8 +1,8 @@
 <?php
 
 use App\Domain\Audit\Models\AuditEvent;
+use App\Domain\Authorization\Enums\SystemRole;
 use App\Domain\Platform\Models\SavedTableView;
-use App\Domain\Tenancy\Enums\TenantRole;
 use App\Domain\Tenancy\Models\Tenant;
 use App\Domain\Tenancy\Models\TenantMember;
 use App\Domain\Tenancy\Models\Workspace;
@@ -20,7 +20,7 @@ use Tests\Feature\ManeUi\Fixtures\WorkspaceTable;
  */
 function auditTableFor(array $actions = []): array
 {
-    [$owner, $workspace, $member] = joinWorkspace(TenantRole::Owner);
+    [$owner, $workspace, $member] = joinWorkspace(SystemRole::Owner);
 
     asOwner(function () use ($member, $actions): void {
         foreach ($actions as $action) {
@@ -107,7 +107,7 @@ it('never reads the table without a limit', function (): void {
 });
 
 it('runs a bulk action only on rows the table can see', function (): void {
-    [$user, $workspace, $member] = joinWorkspace(TenantRole::Owner);
+    [$user, $workspace, $member] = joinWorkspace(SystemRole::Owner);
     $foreignWorkspace = asOwner(fn (): Workspace => Workspace::factory()->for(Tenant::factory())->create());
 
     enterWorkspace($member, $workspace);
@@ -121,7 +121,7 @@ it('runs a bulk action only on rows the table can see', function (): void {
 });
 
 it('refuses a bulk action that was not declared', function (): void {
-    [$user, $workspace, $member] = joinWorkspace(TenantRole::Owner);
+    [$user, $workspace, $member] = joinWorkspace(SystemRole::Owner);
     enterWorkspace($member, $workspace);
 
     Livewire::actingAs($user)
@@ -132,7 +132,7 @@ it('refuses a bulk action that was not declared', function (): void {
 });
 
 it('caps the selection at the bulk limit', function (): void {
-    [$user, $workspace, $member] = joinWorkspace(TenantRole::Owner);
+    [$user, $workspace, $member] = joinWorkspace(SystemRole::Owner);
     enterWorkspace($member, $workspace);
 
     $component = Livewire::actingAs($user)
@@ -143,7 +143,7 @@ it('caps the selection at the bulk limit', function (): void {
 });
 
 it('selects and clears the current page', function (): void {
-    [$user, $workspace, $member] = joinWorkspace(TenantRole::Owner);
+    [$user, $workspace, $member] = joinWorkspace(SystemRole::Owner);
     enterWorkspace($member, $workspace);
 
     Livewire::actingAs($user)
@@ -155,7 +155,7 @@ it('selects and clears the current page', function (): void {
 });
 
 it('shows hidden columns on demand but never hides the last visible one', function (): void {
-    [$user, $workspace, $member] = joinWorkspace(TenantRole::Owner);
+    [$user, $workspace, $member] = joinWorkspace(SystemRole::Owner);
     enterWorkspace($member, $workspace);
 
     Livewire::actingAs($user)

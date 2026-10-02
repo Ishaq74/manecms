@@ -1,8 +1,8 @@
 <?php
 
+use App\Domain\Authorization\Enums\SystemRole;
 use App\Domain\Tenancy\Context\TenantContext;
 use App\Domain\Tenancy\Database\TenantDatabaseContext;
-use App\Domain\Tenancy\Enums\TenantRole;
 use App\Domain\Tenancy\Models\TenantMember;
 use App\Domain\Tenancy\Models\Workspace;
 use App\Models\User;
@@ -72,10 +72,10 @@ function something()
  *
  * @return array{0: User, 1: Workspace, 2: TenantMember}
  */
-function joinWorkspace(TenantRole $role = TenantRole::Owner): array
+function joinWorkspace(SystemRole $role = SystemRole::Owner): array
 {
     return asOwner(function () use ($role): array {
-        $member = TenantMember::factory()->create(['role' => $role]);
+        $member = TenantMember::factory()->withSystemRole($role)->create();
         $workspace = Workspace::factory()->for($member->tenant)->create();
 
         return [$member->user, $workspace, $member];

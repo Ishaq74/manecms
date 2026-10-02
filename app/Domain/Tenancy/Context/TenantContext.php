@@ -3,7 +3,6 @@
 namespace App\Domain\Tenancy\Context;
 
 use App\Domain\Tenancy\Database\TenantDatabaseContext;
-use App\Domain\Tenancy\Enums\TenantRole;
 use App\Domain\Tenancy\Exceptions\TenantContextRequired;
 use App\Domain\Tenancy\Models\Tenant;
 use App\Domain\Tenancy\Models\TenantMember;
@@ -15,6 +14,7 @@ use LogicException;
  *
  * Bound as a scoped instance. Reading it before it is installed throws, so code
  * that forgets to resolve a workspace fails closed instead of guessing a tenant.
+ * What the member may do is decided by the Policy Engine, never read from here.
  */
 final class TenantContext
 {
@@ -54,10 +54,5 @@ final class TenantContext
     public function tenant(): Tenant
     {
         return $this->member()->tenant;
-    }
-
-    public function role(): TenantRole
-    {
-        return $this->member()->role;
     }
 }

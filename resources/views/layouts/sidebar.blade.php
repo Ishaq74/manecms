@@ -37,6 +37,24 @@
                             />
                         @endcan
 
+                        @can('tenancy.member.view')
+                            <x-mane::sidebar.item
+                                icon="users"
+                                :href="route('members.index', $tenantContext->workspace())"
+                                :current="request()->routeIs('members.index')"
+                                :text="__('Members')"
+                            />
+                        @endcan
+
+                        @can('tenancy.role.manage')
+                            <x-mane::sidebar.item
+                                icon="key"
+                                :href="route('roles.index', $tenantContext->workspace())"
+                                :current="request()->routeIs('roles.index')"
+                                :text="__('Roles')"
+                            />
+                        @endcan
+
                         @can('viewAny', \App\Domain\Audit\Models\AuditEvent::class)
                             <x-mane::sidebar.item
                                 icon="shield-check"

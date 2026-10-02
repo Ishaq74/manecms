@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Domain\Authorization\Actions\ProvisionSystemRoles;
+use App\Domain\Tenancy\Database\TenantDatabaseContext;
 use App\Domain\Tenancy\Models\Tenant;
 use Database\Factories\Concerns\BypassesRowSecurity;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -24,5 +26,22 @@ class TenantFactory extends Factory
         return [
             'name' => fake()->company(),
         ];
+    }
+
+    public function configure(): static
+    {
+        return $this->afterCreating(function (Tenant $tenant): void {
+            app(TenantDatabaseContext::class)->withoutRowSecurity(fn (): array => app(ProvisionSystemRoles::class)($tenant->id));
+        });
+    }
+
+    public function archived(): static
+    {
+        return $this->state(fn (): array => ['archived_at' => now()]);
+    }
+
+    public function requiringMfa(): static
+    {
+        return $this->state(fn (): array => ['require_mfa' => true]);
     }
 }

@@ -13,6 +13,7 @@
                 @foreach ([
                     'profile.edit' => [__('Profile'), 'user-circle'],
                     'security.edit' => [__('Security'), 'shield-check'],
+                    'sessions.index' => [__('Sessions'), 'computer-desktop'],
                     'appearance.edit' => [__('Appearance'), 'swatch'],
                 ] as $routeName => [$label, $icon])
                     <li wire:key="settings-nav-{{ $routeName }}">

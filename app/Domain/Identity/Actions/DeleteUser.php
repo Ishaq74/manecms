@@ -4,13 +4,13 @@ namespace App\Domain\Identity\Actions;
 
 use App\Domain\Audit\AuditLog;
 use App\Domain\Tenancy\Database\TenantDatabaseContext;
-use App\Domain\Tenancy\Enums\TenantRole;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 /**
- * Deletes an account unless it still owns a tenant (todo/todo.md §20.1).
+ * Deletes an account unless it still owns an active tenant (todo/todo.md §20.1).
  *
  * Memberships of other roles go with the user through the foreign key cascade;
  * tenant data is never deleted with an account.
@@ -30,7 +30,10 @@ final readonly class DeleteUser
     public function __invoke(User $user, callable $signOut): void
     {
         // Without an explicit user scope, row level security would hide the memberships and let the deletion through.
-        $ownsTenant = $this->database->runAs(null, $user->id, fn (): bool => $user->tenantMemberships()->where('role', TenantRole::Owner)->exists());
+        $ownsTenant = $this->database->runAs(null, $user->id, fn (): bool => $user->tenantMemberships()
+            ->where('is_owner', true)
+            ->whereHas('tenant', fn (Builder $tenant): Builder => $tenant->whereNull('archived_at'))
+            ->exists());
 
         if ($ownsTenant) {
             throw ValidationException::withMessages([
