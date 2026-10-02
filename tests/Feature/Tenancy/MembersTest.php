@@ -184,3 +184,15 @@ it('filters the members table by role', function (): void {
         ->assertSee($admin->user->email)
         ->assertDontSee($member->user->email);
 });
+
+it('lists only the members of the current space for someone who belongs to several', function (): void {
+    [$owner, $workspace, $ownerMember] = joinWorkspace();
+    $elsewhere = TenantMember::factory()->admin()->create(['user_id' => $owner->id]);
+
+    $this->actingAs($owner)
+        ->get(route('members.index', $workspace))
+        ->assertOk()
+        ->assertDontSee('manage-member-'.$elsewhere->id);
+
+    expect(asOwner(fn () => TenantMember::query()->where('user_id', $owner->id)->count()))->toBe(2);
+});

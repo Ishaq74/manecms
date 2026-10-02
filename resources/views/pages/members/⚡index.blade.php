@@ -66,7 +66,7 @@ new #[Layout('layouts::sidebar')] #[Title('Members')] class extends Component {
     {
         $this->authorize(TenancyPermission::MemberView->key());
 
-        return TenantMember::query()
+        return $this->tenantMembers()
             ->select('tenant_members.*')
             ->join('users', 'users.id', '=', 'tenant_members.user_id')
             ->with(['user:id,name,email', 'role', 'restrictedWorkspaces:id,name']);
@@ -189,7 +189,7 @@ new #[Layout('layouts::sidebar')] #[Title('Members')] class extends Component {
 
     public function manage(string $memberId): void
     {
-        $member = TenantMember::query()->with(['role', 'restrictedWorkspaces:id'])->findOrFail($memberId);
+        $member = $this->tenantMembers()->with(['role', 'restrictedWorkspaces:id'])->findOrFail($memberId);
         abort_unless($this->canManage($member), 403);
 
         $this->managedMemberId = $member->id;
@@ -205,7 +205,7 @@ new #[Layout('layouts::sidebar')] #[Title('Members')] class extends Component {
     #[Computed]
     public function managedAbilities(): array
     {
-        $member = $this->managedMemberId === null ? null : TenantMember::query()->with('role')->find($this->managedMemberId);
+        $member = $this->managedMemberId === null ? null : $this->tenantMembers()->with('role')->find($this->managedMemberId);
 
         return $member === null ? ['role' => false, 'restrict' => false, 'remove' => false] : $this->abilitiesOn($member);
     }
@@ -213,7 +213,7 @@ new #[Layout('layouts::sidebar')] #[Title('Members')] class extends Component {
     #[Computed]
     public function managedMember(): ?TenantMember
     {
-        return $this->managedMemberId === null ? null : TenantMember::query()->with('user:id,name,email')->find($this->managedMemberId);
+        return $this->managedMemberId === null ? null : $this->tenantMembers()->with('user:id,name,email')->find($this->managedMemberId);
     }
 
     public function saveRole(UpdateMemberRole $updateMemberRole): void
@@ -292,6 +292,16 @@ new #[Layout('layouts::sidebar')] #[Title('Members')] class extends Component {
         } finally {
             unset($this->tableRows, $this->managedAbilities, $this->managedMember);
         }
+    }
+
+    /**
+     * Row level security also shows the user their own memberships of other tenants.
+     *
+     * @return Builder<TenantMember>
+     */
+    private function tenantMembers(): Builder
+    {
+        return TenantMember::query()->where('tenant_members.tenant_id', app(TenantContext::class)->tenant()->id);
     }
 
     private function user(): User
