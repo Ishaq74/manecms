@@ -61,6 +61,7 @@ jobs:
           php artisan key:generate
           php artisan database:provision --superuser=root --database=manecms_testing
           pnpm install
+          pnpm exec playwright install --with-deps chromium
           pnpm run build
 
       - name: Run quality gate

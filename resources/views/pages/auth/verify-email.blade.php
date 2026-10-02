@@ -1,25 +1,18 @@
-<x-layouts::auth :title="__('Email verification')">
-    <div class="mt-4 flex flex-col gap-6">
-        <p class="text-center text-dark-600 dark:text-dark-400">
-            {{ __('Please verify your email address by clicking on the link we just emailed to you.') }}
-        </p>
+<x-layouts::auth
+    :title="__('Email verification')"
+    :heading="__('Verify your email address')"
+    :description="__('Please verify your email address by clicking on the link we just emailed to you.')"
+    :status="session('status') === 'verification-link-sent' ? __('A new verification link has been sent to the email address you provided during registration.') : null"
+>
+    <form method="POST" action="{{ route('verification.send') }}">
+        @csrf
 
-        @if (session('status') == 'verification-link-sent')
-            <p class="text-center font-medium text-secondary-600 dark:text-secondary-400">
-                {{ __('A new verification link has been sent to the email address you provided during registration.') }}
-            </p>
-        @endif
+        <x-mane::button type="submit" block :text="__('Resend verification email')" />
+    </form>
 
-        <div class="flex flex-col items-center justify-between space-y-3">
-            <form method="POST" action="{{ route('verification.send') }}">
-                @csrf
-                <x-button submit block :text="__('Resend verification email')" />
-            </form>
+    <form method="POST" action="{{ route('logout') }}" class="flex justify-center">
+        @csrf
 
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <x-button flat submit :text="__('Log out')" data-test="logout-button" class="cursor-pointer text-sm" />
-            </form>
-        </div>
-    </div>
+        <x-mane::button variant="ghost" size="sm" type="submit" :text="__('Log out')" data-test="logout-button" />
+    </form>
 </x-layouts::auth>

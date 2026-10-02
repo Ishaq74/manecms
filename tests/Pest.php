@@ -25,6 +25,13 @@ pest()->extend(TestCase::class)
     ->group('feature')
     ->in('Feature');
 
+pest()->extend(TestCase::class)
+    ->use(RefreshDatabaseAsOwner::class)
+    ->group('browser')
+    ->in('Browser');
+
+pest()->browser()->timeout(30_000);
+
 pest()->group('unit')->in('Unit');
 
 pest()->group('architecture')->in('Architecture');

@@ -32,34 +32,13 @@ new #[Layout('layouts::sidebar')] #[Title('New workspace')] class extends Compon
 }; ?>
 
 <section class="mx-auto flex w-full max-w-lg flex-col gap-6">
-    <div class="flex flex-col gap-1">
-        <h1 class="text-2xl font-semibold tracking-tight text-dark-900 dark:text-white">
-            {{ __('New workspace') }}
-        </h1>
+    <x-mane::page-header :title="__('New workspace')" :description="__('A workspace separates the content and activity of a team, brand or project.')" />
 
-        <p class="text-sm text-dark-500 dark:text-dark-400">
-            {{ __('A workspace separates the content and activity of a team, brand or project.') }}
-        </p>
-    </div>
+    <x-mane::card>
+        <x-mane::form wire:submit="createWorkspace" :dirty-notice="false">
+            <x-mane::input wire:model="name" :label="__('Name')" type="text" required autofocus maxlength="120" data-test="workspace-name-input" />
 
-    <form wire:submit="createWorkspace" class="space-y-6">
-        <x-input
-            wire:model="name"
-            :label="__('Name')"
-            type="text"
-            required
-            autofocus
-            maxlength="120"
-            data-test="workspace-name-input"
-        />
-
-        <x-button
-            submit
-            block
-            wire:loading.attr="disabled"
-            wire:target="createWorkspace"
-            data-test="create-workspace-button"
-            :text="__('Create')"
-        />
-    </form>
+            <x-mane::button type="submit" block loading="createWorkspace" data-test="create-workspace-button" :text="__('Create')" />
+        </x-mane::form>
+    </x-mane::card>
 </section>

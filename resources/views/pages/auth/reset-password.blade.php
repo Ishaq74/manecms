@@ -1,48 +1,26 @@
-<x-layouts::auth :title="__('Reset password')">
-    <div class="flex flex-col gap-6">
-        <x-auth-header :title="__('Reset password')" :description="__('Please enter your new password below')" />
+<x-layouts::auth
+    :title="__('Reset password')"
+    :heading="__('Reset password')"
+    :description="__('Please enter your new password below')"
+    :status="session('status')"
+>
+    <x-mane::form method="POST" action="{{ route('password.update') }}" :dirty-notice="false">
+        @csrf
+        <input type="hidden" name="token" value="{{ request()->route('token') }}">
 
-        <!-- Session Status -->
-        <x-auth-session-status class="text-center" :status="session('status')" />
+        <x-mane::input
+            name="email"
+            :value="old('email', request('email'))"
+            :label="__('Email')"
+            type="email"
+            required
+            autocomplete="email"
+        />
 
-        <form method="POST" action="{{ route('password.update') }}" class="flex flex-col gap-6">
-            @csrf
-            <!-- Token -->
-            <input type="hidden" name="token" value="{{ request()->route('token') }}">
+        <x-mane::password name="password" :label="__('Password')" required autocomplete="new-password" rules />
 
-            <!-- Email Address -->
-            <x-input
-                name="email"
-                value="{{ request('email') }}"
-                :label="__('Email')"
-                type="email"
-                required
-                autocomplete="email"
-            />
+        <x-mane::password name="password_confirmation" :label="__('Confirm password')" required autocomplete="new-password" />
 
-            <!-- Password -->
-            <x-password
-                name="password"
-                :label="__('Password')"
-                required
-                autocomplete="new-password"
-                :placeholder="__('Password')"
-                :rules="true"
-            />
-
-            <!-- Confirm Password -->
-            <x-password
-                name="password_confirmation"
-                :label="__('Confirm password')"
-                required
-                autocomplete="new-password"
-                :placeholder="__('Confirm password')"
-                :rules="true"
-            />
-
-            <div class="flex items-center justify-end">
-                <x-button submit block data-test="reset-password-button" :text="__('Reset password')" />
-            </div>
-        </form>
-    </div>
+        <x-mane::button type="submit" block data-test="reset-password-button" :text="__('Reset password')" />
+    </x-mane::form>
 </x-layouts::auth>

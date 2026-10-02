@@ -45,31 +45,17 @@
     }"
 >
     <template x-if="supported">
-        <div>
-            <div class="grid gap-2">
-                <x-button
-                    outline
-                    block
-                    x-on:click="verify()"
-                    x-bind:disabled="loading"
-                >
-                    <span x-show="!loading">{{ $label }}</span>
+        <div class="flex flex-col gap-6">
+            <div class="flex flex-col gap-2">
+                <x-mane::button variant="secondary" icon="finger-print" block x-on:click="verify()" x-bind:disabled="loading">
+                    <span x-show="! loading">{{ $label }}</span>
                     <span x-show="loading" x-cloak>{{ $loadingLabel }}</span>
-                </x-button>
-                <p x-show="error" x-text="error" x-cloak
-                   class="text-sm text-center text-primary-600 dark:text-primary-400"></p>
+                </x-mane::button>
+
+                <p x-show="error" x-text="error" x-cloak role="alert" class="text-center text-sm font-medium text-danger"></p>
             </div>
 
-            <div class="relative my-6">
-                <div class="absolute inset-0 flex items-center">
-                    <div class="w-full border-t border-dark-200 dark:border-dark-700"></div>
-                </div>
-                <div class="relative flex justify-center text-xs uppercase">
-                    <span class="px-2 text-dark-500 dark:text-dark-400 bg-white dark:bg-dark-900">
-                        {{ $separator }}
-                    </span>
-                </div>
-            </div>
+            <x-mane::divider :label="$separator" />
         </div>
     </template>
 </div>

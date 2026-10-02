@@ -35,7 +35,7 @@ it('expose dashboard, profil et deconnexion', function (): void {
     expect($matches[0])
         ->toContain('role="menuitem"')
         ->toContain('type="submit"')
-        ->toContain('hover:bg-dark-100');
+        ->toContain('hover:bg-surface-sunken');
 
     // The old entry pointed at the profile page under a "Settings" label.
     expect($flat)->not->toContain('>Settings<');

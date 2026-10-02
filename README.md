@@ -81,7 +81,7 @@ Chaque passe a ses livrables, invariants, tests et critères d'acceptation déta
 - [x] **P01** Tenancy core — dépend de P00
 - [x] **P02** Isolation PostgreSQL (RLS) — P01
 - [x] **P03** Audit, corrélation, erreurs typées — P02
-- [ ] **P04** ManeUI : fondations — P01
+- [x] **P04** ManeUI : fondations — P01
 - [ ] **P05** Membres, invitations, RBAC, Policy Engine — P03, P04
 - [ ] **P06** Back-office opérateur — P05
 - [ ] **P07** Localisation et temps — P04

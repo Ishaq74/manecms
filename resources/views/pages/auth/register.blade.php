@@ -1,63 +1,42 @@
-<x-layouts::auth :title="__('Register')">
-    <div class="flex flex-col gap-6">
-        <x-auth-header :title="__('Create an account')" :description="__('Enter your details below to create your account')" />
+<x-layouts::auth
+    :title="__('Register')"
+    :heading="__('Create an account')"
+    :description="__('Enter your details below to create your account')"
+    :status="session('status')"
+>
+    <x-mane::form method="POST" action="{{ route('register.store') }}" :dirty-notice="false">
+        @csrf
 
-        <!-- Session Status -->
-        <x-auth-session-status class="text-center" :status="session('status')" />
+        <x-mane::input
+            name="name"
+            :label="__('Name')"
+            :value="old('name')"
+            type="text"
+            required
+            autofocus
+            autocomplete="name"
+            :placeholder="__('Full name')"
+        />
 
-        <form method="POST" action="{{ route('register.store') }}" class="flex flex-col gap-6">
-            @csrf
-            <!-- Name -->
-            <x-input
-                name="name"
-                :label="__('Name')"
-                :value="old('name')"
-                type="text"
-                required
-                autofocus
-                autocomplete="name"
-                :placeholder="__('Full name')"
-            />
+        <x-mane::input
+            name="email"
+            :label="__('Email address')"
+            :value="old('email')"
+            type="email"
+            required
+            autocomplete="email"
+            placeholder="email@example.com"
+        />
 
-            <!-- Email Address -->
-            <x-input
-                name="email"
-                :label="__('Email address')"
-                :value="old('email')"
-                type="email"
-                required
-                autocomplete="email"
-                placeholder="email@example.com"
-            />
+        <x-mane::password name="password" :label="__('Password')" required autocomplete="new-password" rules />
 
-            <!-- Password -->
-            <x-password
-                name="password"
-                :label="__('Password')"
-                required
-                autocomplete="new-password"
-                :placeholder="__('Password')"
-                :rules="true"
-            />
+        <x-mane::password name="password_confirmation" :label="__('Confirm password')" required autocomplete="new-password" />
 
-            <!-- Confirm Password -->
-            <x-password
-                name="password_confirmation"
-                :label="__('Confirm password')"
-                required
-                autocomplete="new-password"
-                :placeholder="__('Confirm password')"
-                :rules="true"
-            />
+        <x-mane::button type="submit" block data-test="register-user-button" :text="__('Create account')" />
+    </x-mane::form>
 
-            <div class="flex items-center justify-end">
-                <x-button submit block data-test="register-user-button" :text="__('Create account')" />
-            </div>
-        </form>
-
-        <div class="space-x-1 rtl:space-x-reverse text-center text-sm text-dark-600 dark:text-dark-400">
-            <span>{{ __('Already have an account?') }}</span>
-            <x-link underline navigate :href="route('login')" :text="__('Log in')" />
-        </div>
-    </div>
+    <x-slot:footer>
+        {{ __('Already have an account?') }}
+        <x-mane::link navigate :href="route('login')" :text="__('Log in')" />
+    </x-slot:footer>
 </x-layouts::auth>

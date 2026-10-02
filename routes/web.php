@@ -28,6 +28,11 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
         Route::livewire('tenant/settings', 'pages::tenants.settings')->name('tenant.settings');
         Route::livewire('audit', 'pages::audit.index')->name('audit.index');
     });
+
+    // Internal ManeUI catalogue: never registered outside local development and the test suite.
+    if (app()->environment(['local', 'testing'])) {
+        Route::livewire('_mane', 'pages::mane.catalog')->name('mane.catalog');
+    }
 });
 
 require __DIR__.'/settings.php';

@@ -21,6 +21,8 @@ return [
         'jobs' => 'Platform',
         'migrations' => 'Platform',
 
+        'saved_table_views' => 'Platform',
+
         'passkeys' => 'Identity',
         'password_reset_tokens' => 'Identity',
         'personal_access_tokens' => 'Identity',

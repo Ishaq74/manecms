@@ -1,34 +1,27 @@
-<x-layouts::auth :title="__('Forgot password')">
-    <div class="flex flex-col gap-6">
-        <x-auth-header :title="__('Forgot password')" :description="__('Enter your email to receive a password reset link')" />
+<x-layouts::auth
+    :title="__('Forgot password')"
+    :heading="__('Forgot password')"
+    :description="__('Enter your email to receive a password reset link')"
+    :status="session('status')"
+>
+    <x-mane::form method="POST" action="{{ route('password.email') }}" :dirty-notice="false">
+        @csrf
 
-        <!-- Session Status -->
-        <x-auth-session-status class="text-center" :status="session('status')" />
+        <x-mane::input
+            name="email"
+            :label="__('Email address')"
+            type="email"
+            required
+            autofocus
+            autocomplete="email"
+            placeholder="email@example.com"
+        />
 
-        <form method="POST" action="{{ route('password.email') }}" class="flex flex-col gap-6">
-            @csrf
+        <x-mane::button type="submit" block data-test="email-password-reset-link-button" :text="__('Email password reset link')" />
+    </x-mane::form>
 
-            <!-- Email Address -->
-            <x-input
-                name="email"
-                :label="__('Email address')"
-                type="email"
-                required
-                autofocus
-                placeholder="email@example.com"
-            />
-
-            <x-button
-                submit
-                block
-                data-test="email-password-reset-link-button"
-                :text="__('Email password reset link')"
-            />
-        </form>
-
-        <div class="space-x-1 rtl:space-x-reverse text-center text-sm text-dark-400">
-            <span>{{ __('Or, return to') }}</span>
-            <x-link underline navigate :href="route('login')" :text="__('log in')" />
-        </div>
-    </div>
+    <x-slot:footer>
+        {{ __('Or, return to') }}
+        <x-mane::link navigate :href="route('login')" :text="__('log in')" />
+    </x-slot:footer>
 </x-layouts::auth>

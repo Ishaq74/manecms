@@ -4,19 +4,14 @@ use Livewire\Component;
 
 new class extends Component {}; ?>
 
-<section class="mt-10 space-y-6">
-    <div class="relative mb-5">
-        <h2 class="text-lg font-medium tracking-tight text-dark-800 dark:text-white">
-            {{ __('Delete account') }}
-        </h2>
+<section class="flex flex-col items-start gap-4">
+    <x-mane::section-header :title="__('Delete account')" :description="__('Delete your account and all of its resources')" />
 
-        <p class="text-sm text-dark-500 dark:text-dark-400">
-            {{ __('Delete your account and all of its resources') }}
-        </p>
-    </div>
+    <x-mane::alert tone="danger" :text="__('This cannot be undone.')" />
 
-    <x-button
-        color="red"
+    <x-mane::button
+        variant="danger"
+        icon="trash"
         data-test="delete-user-button"
         :text="__('Delete account')"
         x-on:click="$tsui.open.modal('confirm-user-deletion')"

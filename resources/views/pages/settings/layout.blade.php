@@ -1,44 +1,32 @@
-<div class="flex items-start max-md:flex-col">
-    <nav aria-label="{{ __('Settings') }}" class="me-10 w-full pb-4 md:w-[220px]">
-        <ul class="flex flex-col gap-1">
-            @foreach ([
-                'profile.edit' => __('Profile'),
-                'security.edit' => __('Security'),
-                'appearance.edit' => __('Appearance'),
-            ] as $routeName => $label)
-                @php $isCurrent = request()->routeIs($routeName); @endphp
+{{-- Account settings frame: page header, section navigation and the current section. --}}
+@props([
+    'heading',
+    'subheading' => null,
+])
 
-                <li>
-                    <x-link
-                        navigate
-                        colorless
-                        href="{{ route($routeName) }}"
-                        @class([
-                            'flex items-center rounded-lg px-3 py-2 text-sm transition-colors no-underline',
-                            'bg-dark-800/5 text-dark-900 dark:bg-white/10 dark:text-white' => $isCurrent,
-                            'text-dark-600 hover:bg-dark-800/5 hover:text-dark-900 dark:text-dark-300 dark:hover:bg-white/[7%] dark:hover:text-white' => ! $isCurrent,
-                        ])
-                        :aria-current="$isCurrent ? 'page' : null"
-                    >
-                        {{ $label }}
-                    </x-link>
-                </li>
-            @endforeach
-        </ul>
-    </nav>
+<div class="flex w-full flex-col gap-8">
+    <x-mane::page-header :title="__('Settings')" :description="__('Manage your profile and account settings')" />
 
-    <hr class="border-dark-200 md:hidden dark:border-dark-700" />
+    <div class="flex items-start gap-10 max-md:flex-col max-md:gap-6">
+        <nav aria-label="{{ __('Settings') }}" class="w-full md:w-56 md:shrink-0">
+            <ul class="flex flex-col gap-1 max-md:flex-row max-md:overflow-x-auto">
+                @foreach ([
+                    'profile.edit' => [__('Profile'), 'user-circle'],
+                    'security.edit' => [__('Security'), 'shield-check'],
+                    'appearance.edit' => [__('Appearance'), 'swatch'],
+                ] as $routeName => [$label, $icon])
+                    <li wire:key="settings-nav-{{ $routeName }}">
+                        <x-mane::nav-link :href="route($routeName)" :icon="$icon" :current="request()->routeIs($routeName)">
+                            {{ $label }}
+                        </x-mane::nav-link>
+                    </li>
+                @endforeach
+            </ul>
+        </nav>
 
-    <div class="flex-1 self-stretch max-md:pt-6">
-        <h2 class="text-lg font-medium tracking-tight text-dark-800 dark:text-white">
-            {{ $heading ?? '' }}
-        </h2>
+        <div class="flex w-full min-w-0 flex-1 flex-col gap-6">
+            <x-mane::section-header :title="$heading" :description="$subheading" />
 
-        <p class="text-sm text-dark-500 dark:text-dark-400">
-            {{ $subheading ?? '' }}
-        </p>
-
-        <div class="mt-5 w-full">
             {{ $slot }}
         </div>
     </div>

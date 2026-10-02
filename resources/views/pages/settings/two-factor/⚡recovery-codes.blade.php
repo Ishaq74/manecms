@@ -45,88 +45,58 @@ new class extends Component {
     }
 }; ?>
 
-<div
-    class="py-6 space-y-6 border shadow-sm rounded-xl border-dark-200 dark:border-white/10"
-    wire:cloak
-    x-data="{ showRecoveryCodes: false }"
->
-    <div class="px-6 space-y-2">
-        <div class="flex items-center gap-2">
-            <svg class="size-4 text-dark-500 dark:text-dark-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
-        </svg>
-            <h3 class="text-lg font-medium tracking-tight text-dark-800 dark:text-white">
-                {{ __('2FA recovery codes') }}
-            </h3>
-        </div>
-        <p class="text-sm text-dark-500 dark:text-dark-400">
-            {{ __('Recovery codes let you regain access if you lose your 2FA device. Store them in a secure password manager.') }}
-        </p>
-    </div>
+<div class="flex flex-col gap-4 rounded-surface border border-line p-4" wire:cloak x-data="{ showRecoveryCodes: false }">
+    <x-mane::section-header :level="3" :title="__('2FA recovery codes')" :description="__('Recovery codes let you regain access if you lose your 2FA device. Store them in a secure password manager.')" />
 
-    <div class="px-6">
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <x-button
+    <div class="flex flex-wrap items-center gap-3">
+        <span x-show="! showRecoveryCodes">
+            <x-mane::button
+                variant="secondary"
                 icon="eye"
-                x-show="!showRecoveryCodes"
                 x-on:click="showRecoveryCodes = true"
                 aria-expanded="false"
                 aria-controls="recovery-codes-section"
                 :text="__('View recovery codes')"
             />
+        </span>
 
-            <x-button
+        <span x-show="showRecoveryCodes">
+            <x-mane::button
+                variant="secondary"
                 icon="eye-slash"
-                x-show="showRecoveryCodes"
                 x-on:click="showRecoveryCodes = false"
                 aria-expanded="true"
                 aria-controls="recovery-codes-section"
                 :text="__('Hide recovery codes')"
             />
+        </span>
 
-            @if (filled($recoveryCodes))
-                <x-button
-                    icon="arrow-path"
-                    flat
-                    wire:click="regenerateRecoveryCodes"
-                    :text="__('Regenerate codes')"
-                />
-            @endif
-        </div>
+        @if (filled($recoveryCodes))
+            <x-mane::button
+                icon="arrow-path"
+                variant="ghost"
+                wire:click="regenerateRecoveryCodes"
+                loading="regenerateRecoveryCodes"
+                :text="__('Regenerate codes')"
+            />
+        @endif
+    </div>
 
-        <div
-            x-show="showRecoveryCodes"
-            x-transition
-            id="recovery-codes-section"
-            class="relative overflow-hidden"
-            x-bind:aria-hidden="!showRecoveryCodes"
-        >
-            <div class="mt-3 space-y-3">
-                @error('recoveryCodes')
-                    <x-alert color="red" icon="x-circle" :title="$message" />
-                @enderror
+    <div x-show="showRecoveryCodes" x-transition id="recovery-codes-section" class="flex flex-col gap-3">
+        @error('recoveryCodes')
+            <x-mane::alert tone="danger" :title="$message" />
+        @enderror
 
-                @if (filled($recoveryCodes))
-                    <div
-                        class="grid gap-1 p-4 font-mono text-sm rounded-lg bg-dark-100 dark:bg-white/5"
-                        role="list"
-                        aria-label="{{ __('Recovery codes') }}"
-                    >
-                        @foreach($recoveryCodes as $code)
-                            <div
-                                role="listitem"
-                                class="select-text"
-                                wire:loading.class="opacity-50 animate-pulse"
-                            >
-                                {{ $code }}
-                            </div>
-                        @endforeach
-                    </div>
-                    <p class="text-xs text-dark-500 dark:text-dark-400">
-                        {{ __('Each recovery code can be used once to access your account and will be removed after use. If you need more, click Regenerate codes above.') }}
-                    </p>
-                @endif
-            </div>
-        </div>
+        @if (filled($recoveryCodes))
+            <ul class="grid gap-1 rounded-surface bg-surface-sunken p-4 font-mono text-sm sm:grid-cols-2" aria-label="{{ __('Recovery codes') }}">
+                @foreach ($recoveryCodes as $code)
+                    <li class="select-text" wire:key="recovery-code-{{ $loop->index }}" wire:loading.class="opacity-50">{{ $code }}</li>
+                @endforeach
+            </ul>
+
+            <p class="text-xs text-fg-muted">
+                {{ __('Each recovery code can be used once to access your account and will be removed after use. If you need more, click Regenerate codes above.') }}
+            </p>
+        @endif
     </div>
 </div>

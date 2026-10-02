@@ -31,7 +31,8 @@ final class CheckRunner
         'phpstan' => 'PHPStan + Larastan — static analysis',
         'sloppy' => 'Sloppy — risky code patterns',
         'sheath' => 'Sheath — Blade and HTML lint (dry run)',
-        'pest' => 'Pest — Unit and Feature test suites',
+        'pest' => 'Pest — Unit, Feature and Architecture test suites',
+        'browser' => 'Pest Browser — accessibility, keyboard, dark and RTL (Playwright Chromium)',
         'insights' => 'PHP Insights — code quality score (--full)',
         'type-coverage' => 'Pest — type coverage of arguments (--full)',
     ];
@@ -46,6 +47,7 @@ final class CheckRunner
         'sloppy' => 'vendor/bin/sloppy',
         'sheath' => null,
         'pest' => 'vendor/bin/pest',
+        'browser' => 'node_modules/.bin/playwright',
         'insights' => null,
         'type-coverage' => 'vendor/bin/pest',
     ];
@@ -190,7 +192,9 @@ final class CheckRunner
                 [PHP_BINARY, 'artisan', 'sheath:lint', '--max-warnings=0'],
                 $this->wantsFix() ? ['--fix'] : ['--dry-run'],
             ),
-            'pest' => array_merge([PHP_BINARY, 'vendor/bin/pest'], $dirty),
+            // The browser suite runs in its own process: its in-process HTTP server stalls after the full suite.
+            'pest' => array_merge([PHP_BINARY, 'vendor/bin/pest', '--exclude-testsuite=Browser'], $dirty),
+            'browser' => [PHP_BINARY, 'vendor/bin/pest', '--testsuite=Browser'],
             'insights' => [PHP_BINARY, 'artisan', 'insights'],
             'type-coverage' => [
                 PHP_BINARY, '-d', 'memory_limit=2G', 'vendor/bin/pest', '--type-coverage', '--min=100',

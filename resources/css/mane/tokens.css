@@ -1,0 +1,157 @@
+/*
+ |--------------------------------------------------------------------------
+ | ManeUI tokens (todo/todo.md §38)
+ |--------------------------------------------------------------------------
+ |
+ | Primitive -> semantic -> component. Application views use the semantic
+ | and component layers (bg-surface, text-fg-muted, h-control, px-cell-x);
+ | the primitive ramps stay available for TallStackUI, which drives every
+ | coloured component from primary, secondary and dark.
+ |
+ | The palette is three ramps on purpose: a status never relies on colour
+ | alone, it always pairs an icon with a text (WCAG 1.4.1).
+ |
+ */
+
+/* Primitive ------------------------------------------------------------ */
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-display: 'Sora', 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+
+    /* Primary - blue, hue 262 */
+    --color-primary-50: #f8faff;
+    --color-primary-100: #eaf1ff;
+    --color-primary-200: #dbe8ff;
+    --color-primary-300: #cbdeff;
+    --color-primary-400: #a7c6ff;
+    --color-primary-500: #4170cb;
+    --color-primary-600: #325fb4;
+    --color-primary-700: #244a95;
+    --color-primary-800: #1b3a76;
+    --color-primary-900: #122a58;
+    --color-primary-950: #07183a;
+
+    /* Secondary - teal, hue 172 */
+    --color-secondary-50: #edfef8;
+    --color-secondary-100: #d2faec;
+    --color-secondary-200: #b5f4df;
+    --color-secondary-300: #9aedd2;
+    --color-secondary-400: #53dbb7;
+    --color-secondary-500: #008268;
+    --color-secondary-600: #006e58;
+    --color-secondary-700: #005946;
+    --color-secondary-800: #004435;
+    --color-secondary-900: #003327;
+    --color-secondary-950: #001e16;
+
+    /* Dark - hue 268, near-achromatic */
+    --color-dark-50: #fafbfd;
+    --color-dark-100: #eff2f7;
+    --color-dark-200: #e4e7ef;
+    --color-dark-300: #d8dde6;
+    --color-dark-400: #c0c5d4;
+    --color-dark-500: #6a6f7e;
+    --color-dark-600: #5c626f;
+    --color-dark-700: #424652;
+    --color-dark-800: #333740;
+    --color-dark-900: #262830;
+    --color-dark-950: #171a1f;
+}
+
+/* Semantic ------------------------------------------------------------- */
+
+:root {
+    --mane-surface: #ffffff;
+    --mane-surface-raised: #ffffff;
+    --mane-surface-sunken: var(--color-dark-50);
+    --mane-fg: var(--color-dark-900);
+    --mane-fg-muted: var(--color-dark-600);
+    --mane-line: var(--color-dark-200);
+    --mane-line-strong: var(--color-dark-500);
+    --mane-focus: var(--color-primary-600);
+    --mane-danger: var(--color-primary-700);
+    --mane-success: var(--color-secondary-600);
+    --mane-warning: var(--color-dark-700);
+    --mane-info: var(--color-primary-600);
+    --mane-brand: var(--color-primary-600);
+    --mane-brand-subtle: var(--color-primary-50);
+    --mane-surface-hover: color-mix(in oklab, var(--color-dark-800) 5%, transparent);
+
+    --mane-duration-fast: 120ms;
+    --mane-duration-base: 200ms;
+    --mane-duration-slow: 320ms;
+
+    --mane-z-sticky: 30;
+    --mane-z-overlay: 50;
+    --mane-z-dropdown: 55;
+    --mane-z-toast: 60;
+}
+
+.dark {
+    --mane-surface: var(--color-dark-900);
+    --mane-surface-raised: var(--color-dark-800);
+    --mane-surface-sunken: var(--color-dark-950);
+    --mane-fg: var(--color-dark-100);
+    --mane-fg-muted: var(--color-dark-400);
+    --mane-line: var(--color-dark-700);
+    --mane-line-strong: var(--color-dark-400);
+    --mane-focus: var(--color-primary-400);
+    --mane-danger: var(--color-primary-300);
+    --mane-success: var(--color-secondary-400);
+    --mane-warning: var(--color-dark-300);
+    --mane-info: var(--color-primary-400);
+    --mane-brand: var(--color-primary-400);
+    --mane-brand-subtle: color-mix(in oklab, var(--color-primary-500) 10%, transparent);
+    --mane-surface-hover: color-mix(in oklab, #ffffff 10%, transparent);
+}
+
+/* Component (density, §467) -------------------------------------------- */
+
+:root,
+[data-density='comfortable'] {
+    --mane-control-h: 2.5rem;
+    --mane-cell-px: 1rem;
+    --mane-cell-py: 0.75rem;
+    --mane-stack: 1.5rem;
+}
+
+[data-density='compact'] {
+    --mane-control-h: 2.25rem;
+    --mane-cell-px: 0.75rem;
+    --mane-cell-py: 0.5rem;
+    --mane-stack: 1rem;
+}
+
+[data-density='dense'] {
+    --mane-control-h: 2rem;
+    --mane-cell-px: 0.5rem;
+    --mane-cell-py: 0.25rem;
+    --mane-stack: 0.75rem;
+}
+
+@theme inline {
+    --color-surface: var(--mane-surface);
+    --color-surface-raised: var(--mane-surface-raised);
+    --color-surface-sunken: var(--mane-surface-sunken);
+    --color-fg: var(--mane-fg);
+    --color-fg-muted: var(--mane-fg-muted);
+    --color-line: var(--mane-line);
+    --color-line-strong: var(--mane-line-strong);
+    --color-focus: var(--mane-focus);
+    --color-danger: var(--mane-danger);
+    --color-success: var(--mane-success);
+    --color-warning: var(--mane-warning);
+    --color-info: var(--mane-info);
+    --color-brand: var(--mane-brand);
+    --color-brand-subtle: var(--mane-brand-subtle);
+    --color-surface-hover: var(--mane-surface-hover);
+
+    --spacing-control: var(--mane-control-h);
+    --spacing-cell-x: var(--mane-cell-px);
+    --spacing-cell-y: var(--mane-cell-py);
+    --spacing-stack: var(--mane-stack);
+
+    --radius-control: var(--radius-md);
+    --radius-surface: var(--radius-xl);
+}

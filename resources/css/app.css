@@ -1,107 +1,17 @@
 @import 'tailwindcss';
 @import '../../vendor/tallstackui/tallstackui/css/v4.css';
+@import './mane/tokens.css';
+@import './mane/base.css';
 
 @plugin '@tailwindcss/forms';
 
 @source '../views';
 @source '../../vendor/tallstackui/tallstackui/**/*.php';
 @source '../../app/View/**/*.php';
+@source '../../app/Livewire/**/*.php';
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 
 @custom-variant dark (&:where(.dark, .dark *));
-
-/*
- |--------------------------------------------------------------------------
- | Palette
- |--------------------------------------------------------------------------
- |
- | TallStackUI drives every coloured component from these three ramps, so
- | redefining them here retints the whole component library at once. No
- | per-component colour class is needed.
- |
- | Primary is blue (hue 262), secondary is teal (hue 172) and dark is the
- | neutral scale. Rebuild with `pnpm run build` after any change.
- |
- */
-
-@theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-
-    /* Primary - blue, hue 262 */
-    --color-primary-50: #f8faff;
-    --color-primary-100: #eaf1ff;
-    --color-primary-200: #dbe8ff;
-    --color-primary-300: #cbdeff;
-    --color-primary-400: #a7c6ff;
-    --color-primary-500: #4170cb;
-    --color-primary-600: #325fb4;
-    --color-primary-700: #244a95;
-    --color-primary-800: #1b3a76;
-    --color-primary-900: #122a58;
-    --color-primary-950: #07183a;
-
-    /* Secondary - teal, hue 172 */
-    --color-secondary-50: #edfef8;
-    --color-secondary-100: #d2faec;
-    --color-secondary-200: #b5f4df;
-    --color-secondary-300: #9aedd2;
-    --color-secondary-400: #53dbb7;
-    --color-secondary-500: #008268;
-    --color-secondary-600: #006e58;
-    --color-secondary-700: #005946;
-    --color-secondary-800: #004435;
-    --color-secondary-900: #003327;
-    --color-secondary-950: #001e16;
-
-    /* Neutral - hue 268, near-achromatic */
-    --color-dark-50: #fafbfd;
-    --color-dark-100: #eff2f7;
-    --color-dark-200: #e4e7ef;
-    --color-dark-300: #d8dde6;
-    --color-dark-400: #c0c5d4;
-    --color-dark-500: #6a6f7e;
-    --color-dark-600: #5c626f;
-    --color-dark-700: #424652;
-    --color-dark-800: #333740;
-    --color-dark-900: #262830;
-    --color-dark-950: #171a1f;
-}
-
-/*
- |--------------------------------------------------------------------------
- | Surfaces and borders
- |--------------------------------------------------------------------------
- |
- | `color-scheme` lets the browser render scrollbars, form controls and
- | default UI in the active mode instead of flashing white in dark mode. The
- | border colour follows the neutral ramp so unstyled borders match the theme.
- |
- */
-
-@layer base {
-    :root {
-        color-scheme: light;
-    }
-
-    html.dark {
-        color-scheme: dark;
-    }
-
-    *,
-    ::after,
-    ::before,
-    ::backdrop,
-    ::file-selector-button {
-        border-color: var(--color-dark-200);
-    }
-
-    html.dark *,
-    html.dark ::after,
-    html.dark ::before,
-    html.dark ::backdrop {
-        border-color: var(--color-dark-700);
-    }
-}
 
 /*
  |--------------------------------------------------------------------------

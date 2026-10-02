@@ -65,20 +65,21 @@
         },
     }"
 >
-    <template x-if="!supported">
-        <p class="text-sm text-dark-600 dark:text-dark-400">{{ __('Passkeys are not supported in this browser.') }}</p>
+    <template x-if="! supported">
+        <x-mane::alert tone="info" :text="__('Passkeys are not supported in this browser.')" />
     </template>
 
-    <template x-if="supported && !showForm">
+    <template x-if="supported && ! showForm">
         <div>
-            <x-button icon="plus" x-on:click="showForm = true" :text="__('Add passkey')" />
+            <x-mane::button variant="secondary" icon="plus" x-on:click="showForm = true" :text="__('Add passkey')" />
         </div>
     </template>
 
     <template x-if="supported && showForm">
-        <div class="space-y-4 rounded-lg border border-dark-200 dark:border-dark-700 bg-dark-50 dark:bg-dark-800/50 p-4">
-            <x-input
+        <div class="flex flex-col gap-4 rounded-surface border border-line bg-surface-sunken p-4">
+            <x-mane::input
                 :label="__('Passkey name')"
+                :hint="__('Give this passkey a name to help you identify it later.')"
                 x-model="name"
                 placeholder="{{ __('e.g., MacBook Pro, iPhone') }}"
                 x-on:keydown.enter.prevent="register()"
@@ -86,22 +87,15 @@
                 x-init="$nextTick(() => $refs.passkeyNameInput?.focus())"
             />
 
-            <p class="mt-1 text-sm text-dark-500 dark:text-dark-400">
-                {{ __('Give this passkey a name to help you identify it later.') }}
-            </p>
-
-            <p x-show="error" x-text="error" x-cloak class="text-sm text-primary-600 dark:text-primary-400"></p>
+            <p x-show="error" x-text="error" x-cloak role="alert" class="text-sm font-medium text-danger"></p>
 
             <div class="flex gap-2">
-                <x-button
-                    x-on:click="register()"
-                    x-bind:disabled="loading || !name.trim()"
-                >
-                    <span x-show="!loading">{{ __('Register passkey') }}</span>
+                <x-mane::button icon="finger-print" x-on:click="register()" x-bind:disabled="loading || ! name.trim()">
+                    <span x-show="! loading">{{ __('Register passkey') }}</span>
                     <span x-show="loading" x-cloak>{{ __('Registering...') }}</span>
-                </x-button>
+                </x-mane::button>
 
-                <x-button flat x-on:click="cancel()" :text="__('Cancel')" />
+                <x-mane::button variant="ghost" x-on:click="cancel()" :text="__('Cancel')" />
             </div>
         </div>
     </template>

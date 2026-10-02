@@ -1,6 +1,6 @@
 {{-- Standalone on purpose: it must render even when the failure comes from the database or the session. --}}
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ App\Enums\TextDirection::current()->value }}">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">

@@ -25,34 +25,13 @@ new #[Layout('layouts::sidebar')] #[Title('Create your space')] class extends Co
 }; ?>
 
 <section class="mx-auto flex w-full max-w-lg flex-col gap-6">
-    <div class="flex flex-col gap-1">
-        <h1 class="text-2xl font-semibold tracking-tight text-dark-900 dark:text-white">
-            {{ __('Create your space') }}
-        </h1>
+    <x-mane::page-header :title="__('Create your space')" :description="__('Name the company, association or project you manage. You can add more workspaces later.')" />
 
-        <p class="text-sm text-dark-500 dark:text-dark-400">
-            {{ __('Name the company, association or project you manage. You can add more workspaces later.') }}
-        </p>
-    </div>
+    <x-mane::card>
+        <x-mane::form wire:submit="createTenant" :dirty-notice="false">
+            <x-mane::input wire:model="name" :label="__('Name')" type="text" required autofocus maxlength="120" data-test="tenant-name" />
 
-    <form wire:submit="createTenant" class="space-y-6">
-        <x-input
-            wire:model="name"
-            :label="__('Name')"
-            type="text"
-            required
-            autofocus
-            maxlength="120"
-            data-test="tenant-name"
-        />
-
-        <x-button
-            submit
-            block
-            wire:loading.attr="disabled"
-            wire:target="createTenant"
-            data-test="create-tenant-button"
-            :text="__('Create')"
-        />
-    </form>
+            <x-mane::button type="submit" block loading="createTenant" data-test="create-tenant-button" :text="__('Create')" />
+        </x-mane::form>
+    </x-mane::card>
 </section>

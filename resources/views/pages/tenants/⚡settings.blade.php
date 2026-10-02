@@ -2,23 +2,27 @@
 
 use App\Domain\Tenancy\Actions\RenameTenant;
 use App\Domain\Tenancy\Context\TenantContext;
+use App\Livewire\Concerns\HasFormContract;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
-use TallStackUi\Traits\Interactions;
 
 new #[Layout('layouts::sidebar')] #[Title('Space settings')] class extends Component {
-    use Interactions;
-
+    use HasFormContract;
     public string $name = '';
 
     public function mount(TenantContext $context): void
     {
         $this->authorize('update', $context->tenant());
 
-        $this->name = $context->tenant()->name;
+        $this->fillForm();
+    }
+
+    protected function fillForm(): void
+    {
+        $this->name = app(TenantContext::class)->tenant()->name;
     }
 
     /**
@@ -31,37 +35,21 @@ new #[Layout('layouts::sidebar')] #[Title('Space settings')] class extends Compo
 
         $renameTenant($user, $this->name);
 
-        $this->toast()->success(__('Space renamed.'))->send();
+        $this->formSucceeded(__('Space renamed.'));
     }
 }; ?>
 
 <section class="mx-auto flex w-full max-w-2xl flex-col gap-6">
-    <div class="flex flex-col gap-1">
-        <h1 class="text-2xl font-semibold tracking-tight text-dark-900 dark:text-white">
-            {{ __('Space settings') }}
-        </h1>
+    <x-mane::page-header :title="__('Space settings')" :description="__('The space groups your workspaces, members and data.')" />
 
-        <p class="text-sm text-dark-500 dark:text-dark-400">
-            {{ __('The space groups your workspaces, members and data.') }}
-        </p>
-    </div>
+    <x-mane::card>
+        <x-mane::form wire:submit="renameTenant">
+            <x-mane::input wire:model="name" :label="__('Name')" type="text" required maxlength="120" data-test="tenant-name" />
 
-    <form wire:submit="renameTenant" class="space-y-6">
-        <x-input
-            wire:model="name"
-            :label="__('Name')"
-            type="text"
-            required
-            maxlength="120"
-            data-test="tenant-name"
-        />
-
-        <x-button
-            submit
-            wire:loading.attr="disabled"
-            wire:target="renameTenant"
-            data-test="rename-tenant-button"
-            :text="__('Save')"
-        />
-    </form>
+            <x-slot:actions>
+                <x-mane::button variant="ghost" wire:click="resetForm" :text="__('Discard changes')" data-test="reset-tenant-form" />
+                <x-mane::button type="submit" loading="renameTenant" data-test="rename-tenant-button" :text="__('Save')" />
+            </x-slot:actions>
+        </x-mane::form>
+    </x-mane::card>
 </section>

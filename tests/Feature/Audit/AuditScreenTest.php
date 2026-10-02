@@ -46,7 +46,7 @@ it('shows who renamed a workspace, when, what changed and the correlation', func
         ->assertSee($admin->user->name)
         ->assertSee('tenancy.workspace.renamed')
         ->assertSee($event->occurred_at->format('Y-m-d H:i:s'))
-        ->call('toggle', $event->id)
+        ->call('toggleRow', $event->id)
         ->assertSee($originalName)
         ->assertSee('Brand studio')
         ->assertSee($event->correlation_id);
@@ -64,11 +64,11 @@ it('filters the audit by action and by correlation', function (): void {
 
     Livewire::actingAs($owner)
         ->test('pages::audit.index')
-        ->set('action', 'tenancy.workspace.archived')
+        ->set('filters.action', 'tenancy.workspace.archived')
         ->assertSee('tenancy.workspace.archived')
         ->assertDontSee('tenancy.workspace.created</td>', escape: false)
-        ->set('action', '')
-        ->set('correlation', 'first-correlation')
+        ->set('filters', [])
+        ->set('search', 'first-correlation')
         ->assertSee('tenancy.workspace.created')
         ->assertDontSee('tenancy.workspace.archived</td>', escape: false);
 });

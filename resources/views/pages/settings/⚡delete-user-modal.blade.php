@@ -36,24 +36,18 @@ new class extends Component {
     }
 }; ?>
 
-<x-modal id="confirm-user-deletion" size="lg" wire="showDeletionModal">
-    <form method="POST" wire:submit="deleteUser" class="space-y-6">
-        <div>
-            <h2 class="text-lg font-medium tracking-tight text-dark-800 dark:text-white">
-                {{ __('Are you sure you want to delete your account?') }}
-            </h2>
+<x-mane::modal id="confirm-user-deletion" size="lg" wire="showDeletionModal">
+    <x-mane::form wire:submit="deleteUser" :dirty-notice="false">
+        <x-mane::section-header
+            :title="__('Are you sure you want to delete your account?')"
+            :description="__('Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.')"
+        />
 
-            <p class="text-sm text-dark-500 dark:text-dark-400">
-                {{ __('Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.') }}
-            </p>
-        </div>
+        <x-mane::password wire:model="password" :label="__('Password')" autocomplete="current-password" />
 
-        <x-password wire:model="password" :label="__('Password')" />
-
-        <div class="flex justify-end space-x-2 rtl:space-x-reverse">
-            <x-button flat :text="__('Cancel')" x-on:click="$tsui.close.modal('confirm-user-deletion')" />
-
-            <x-button color="red" submit data-test="confirm-delete-user-button" :text="__('Delete account')" />
-        </div>
-    </form>
-</x-modal>
+        <x-slot:actions>
+            <x-mane::button variant="ghost" :text="__('Cancel')" x-on:click="$tsui.close.modal('confirm-user-deletion')" />
+            <x-mane::button variant="danger" type="submit" loading="deleteUser" data-test="confirm-delete-user-button" :text="__('Delete account')" />
+        </x-slot:actions>
+    </x-mane::form>
+</x-mane::modal>

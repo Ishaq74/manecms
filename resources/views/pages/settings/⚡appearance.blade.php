@@ -8,11 +8,8 @@ new #[Layout('layouts::sidebar')] #[Title('Appearance settings')] class extends 
     //
 }; ?>
 
-<section class="w-full">
-    @include('partials.settings-heading')
-
-
-    <x-pages::settings.layout :heading="__('Appearance')" :subheading="__('Update the appearance settings for your account')">
-        <x-theme-switch block />
-    </x-pages::settings.layout>
-</section>
+<x-pages::settings.layout :heading="__('Appearance')" :subheading="__('Update the appearance settings for your account')">
+    <div class="max-w-md">
+        <x-mane::theme-switch />
+    </div>
+</x-pages::settings.layout>

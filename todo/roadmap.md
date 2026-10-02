@@ -115,7 +115,7 @@ Copier dans `todo/pass-XX-<slug>.md` :
 | P01 | Tenancy core | V1.0 | VITAL | P00 | acceptée |
 | P02 | Isolation PostgreSQL (RLS) | V1.0 | VITAL | P01 | acceptée |
 | P03 | Audit, corrélation, erreurs typées | V1.0 | VITAL | P02 | acceptée |
-| P04 | ManeUI : fondations | V1.0 | STANDARD | P01 | à faire |
+| P04 | ManeUI : fondations | V1.0 | STANDARD | P01 | acceptée |
 | P05 | Membres, invitations, RBAC, Policy Engine | V1.0 | VITAL | P03, P04 | à faire |
 | P06 | Back-office opérateur | V1.0 | STANDARD | P05 | à faire |
 | P07 | Localisation et temps | V1.0 | STANDARD | P04 | à faire |
@@ -308,25 +308,27 @@ Copier dans `todo/pass-XX-<slug>.md` :
 `STANDARD` · Dépend : P01 · Cahier : §6, §7, §37–§43, §280–§283, §338, §339, §407, §464–§469
 
 **Livrables**
-- [ ] Tokens primitive → sémantique → composant dans le thème Tailwind 4 ; mode sombre ; propriétés logiques CSS pour le RTL (§38)
-- [ ] Namespace de composants ManeUI encapsulant TallStackUI : Button, IconButton, Input, Textarea, Select, Checkbox, Radio, Switch, Badge, Status, Alert, Toast, Tooltip, Popover, Dropdown, Modal, Drawer, Tabs, Accordion, Card, Breadcrumb, Avatar, Pagination, EmptyState, ErrorState, LoadingState, Skeleton
-- [ ] Contrat de formulaire Livewire (§281) : validation, autorisation, état sale, envoi, chargement, erreur, succès, réinitialisation
-- [ ] DataTable Livewire (§282) : tri sur colonnes autorisées, filtres, recherche, pagination serveur, sélection, actions groupées, colonnes visibles, vues enregistrées, densité ; jamais de chargement complet (§485)
-- [ ] États obligatoires documentés par composant (§41)
-- [ ] Catalogue interne des composants, disponible en environnement local uniquement
-- [ ] Pages existantes (auth, settings, shell, P01) migrées vers ManeUI
-- [ ] `docs/design-system/` : tokens, composants, règles d'usage
+- [x] Tokens primitive → sémantique → composant dans le thème Tailwind 4 ; mode sombre ; propriétés logiques CSS pour le RTL (§38)
+- [x] Namespace de composants ManeUI encapsulant TallStackUI : Button, IconButton, Input, Textarea, Select, Checkbox, Radio, Switch, Badge, Status, Alert, Toast, Tooltip, Popover, Dropdown, Modal, Drawer, Tabs, Accordion, Card, Breadcrumb, Avatar, Pagination, EmptyState, ErrorState, LoadingState, Skeleton
+- [x] Contrat de formulaire Livewire (§281) : validation, autorisation, état sale, envoi, chargement, erreur, succès, réinitialisation
+- [x] DataTable Livewire (§282) : tri sur colonnes autorisées, filtres, recherche, pagination serveur, sélection, actions groupées, colonnes visibles, vues enregistrées, densité ; jamais de chargement complet (§485)
+- [x] États obligatoires documentés par composant (§41)
+- [x] Catalogue interne des composants, disponible en environnement local uniquement
+- [x] Pages existantes (auth, settings, shell, P01) migrées vers ManeUI
+- [x] `docs/design-system/` : tokens, composants, règles d'usage
 
 Les composants spécialisés arrivent avec la passe qui en a besoin : dates (P07), montants et quantités (P08), arbre (P13), upload (P14), Kanban (P21), calendrier (P52), palette de commandes (P66).
 
 **Tests obligatoires**
-- [ ] Accessibilité axe sans violation sérieuse ou critique sur les pages clés (navigateur)
-- [ ] Navigation clavier et focus visible sur formulaires, modales, tables
-- [ ] Tri DataTable limité aux colonnes déclarées (pas d'injection par paramètre)
-- [ ] Rendu sombre et `dir="rtl"` sans casse de mise en page
+- [x] Accessibilité axe sans violation sérieuse ou critique sur les pages clés (navigateur)
+- [x] Navigation clavier et focus visible sur formulaires, modales, tables
+- [x] Tri DataTable limité aux colonnes déclarées (pas d'injection par paramètre)
+- [x] Rendu sombre et `dir="rtl"` sans casse de mise en page
 
 **Acceptance**
-- [ ] GIVEN un bouton d'envoi désactivé, WHEN on navigue au clavier, THEN le focus reste visible, l'état désactivé est annoncé et l'action ne s'exécute pas (§407).
+- [x] GIVEN un bouton d'envoi désactivé, WHEN on navigue au clavier, THEN le focus reste visible, l'état désactivé est annoncé et l'action ne s'exécute pas (§407).
+
+**Tranché** — Composants anonymes `<x-mane::*>` ; TallStackUI préfixé `ts-` et réservé à ManeUI ; select, alert, tooltip, popover et menu déroulant propres à ManeUI (accessibilité) ; DataTable en trait (`WithDataTable`) ; vues enregistrées sous RLS et policy restrictive par auteur ; tests navigateur en étape `browser` séparée. Reporté : baselines visuelles (P39), export de table (P14), tri multiple, redimensionnement, réordonnancement, épinglage, édition en ligne, regroupement et agrégation (P66), locale `ar` réelle (P66). Spec : `todo/pass-04-maneui-foundations.md`.
 
 ---
 

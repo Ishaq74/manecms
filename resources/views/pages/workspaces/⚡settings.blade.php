@@ -3,16 +3,15 @@
 use App\Domain\Tenancy\Actions\ArchiveWorkspace;
 use App\Domain\Tenancy\Actions\RenameWorkspace;
 use App\Domain\Tenancy\Context\TenantContext;
+use App\Livewire\Concerns\HasFormContract;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
-use TallStackUi\Traits\Interactions;
 
 new #[Layout('layouts::sidebar')] #[Title('Workspace settings')] class extends Component {
-    use Interactions;
-
+    use HasFormContract;
     public string $name = '';
 
     public bool $showArchiveModal = false;
@@ -21,7 +20,12 @@ new #[Layout('layouts::sidebar')] #[Title('Workspace settings')] class extends C
     {
         $this->authorize('update', $context->workspace());
 
-        $this->name = $context->workspace()->name;
+        $this->fillForm();
+    }
+
+    protected function fillForm(): void
+    {
+        $this->name = app(TenantContext::class)->workspace()->name;
     }
 
     /**
@@ -31,7 +35,7 @@ new #[Layout('layouts::sidebar')] #[Title('Workspace settings')] class extends C
     {
         $renameWorkspace($this->user(), $context->workspace()->id, $this->name);
 
-        $this->toast()->success(__('Workspace renamed.'))->send();
+        $this->formSucceeded(__('Workspace renamed.'));
     }
 
     /**
@@ -53,88 +57,54 @@ new #[Layout('layouts::sidebar')] #[Title('Workspace settings')] class extends C
     }
 }; ?>
 
-<section class="mx-auto flex w-full max-w-2xl flex-col gap-10">
-    <div class="flex flex-col gap-6">
-        <div class="flex flex-col gap-1">
-            <h1 class="text-2xl font-semibold tracking-tight text-dark-900 dark:text-white">
-                {{ __('Workspace settings') }}
-            </h1>
+<section class="mx-auto flex w-full max-w-2xl flex-col gap-6">
+    <x-mane::page-header :title="__('Workspace settings')" :description="__('Rename or archive this workspace.')" />
 
-            <p class="text-sm text-dark-500 dark:text-dark-400">
-                {{ __('Rename or archive this workspace.') }}
-            </p>
-        </div>
+    <x-mane::card>
+        <x-mane::form wire:submit="renameWorkspace">
+            <x-mane::input wire:model="name" :label="__('Name')" type="text" required maxlength="120" data-test="workspace-name-input" />
 
-        <form wire:submit="renameWorkspace" class="space-y-6">
-            <x-input
-                wire:model="name"
-                :label="__('Name')"
-                type="text"
-                required
-                maxlength="120"
-                data-test="workspace-name-input"
-            />
+            <x-slot:actions>
+                <x-mane::button variant="ghost" wire:click="resetForm" :text="__('Discard changes')" data-test="reset-workspace-form" />
+                <x-mane::button type="submit" loading="renameWorkspace" data-test="rename-workspace-button" :text="__('Save')" />
+            </x-slot:actions>
+        </x-mane::form>
+    </x-mane::card>
 
-            <x-button
-                submit
-                wire:loading.attr="disabled"
-                wire:target="renameWorkspace"
-                data-test="rename-workspace-button"
-                :text="__('Save')"
-            />
-        </form>
-    </div>
+    <x-mane::card>
+        <div class="flex flex-col items-start gap-4">
+            <x-mane::section-header :level="3" :title="__('Archive workspace')" :description="__('An archived workspace disappears from the switcher. Its data is kept.')" />
 
-    <div class="flex flex-col gap-4">
-        <div class="flex flex-col gap-1">
-            <h2 class="text-lg font-medium tracking-tight text-dark-800 dark:text-white">
-                {{ __('Archive workspace') }}
-            </h2>
+            @error('workspace')
+                <x-mane::alert tone="danger" :text="$message" data-test="archive-error" />
+            @enderror
 
-            <p class="text-sm text-dark-500 dark:text-dark-400">
-                {{ __('An archived workspace disappears from the switcher. Its data is kept.') }}
-            </p>
-        </div>
-
-        @error('workspace')
-            <p class="text-sm text-red-600 dark:text-red-400" data-test="archive-error">{{ $message }}</p>
-        @enderror
-
-        <div>
-            <x-button
-                color="red"
+            <x-mane::button
+                variant="danger"
+                icon="archive-box"
                 data-test="archive-workspace-button"
                 :text="__('Archive workspace')"
                 x-on:click="$tsui.open.modal('confirm-workspace-archive')"
             />
         </div>
-    </div>
+    </x-mane::card>
 
-    <x-modal id="confirm-workspace-archive" size="lg" wire="showArchiveModal">
-        <div class="space-y-6">
-            <div>
-                <h2 class="text-lg font-medium tracking-tight text-dark-800 dark:text-white">
-                    {{ __('Archive this workspace?') }}
-                </h2>
+    <x-mane::modal id="confirm-workspace-archive" size="lg" wire="showArchiveModal">
+        <div class="flex flex-col gap-6">
+            <x-mane::section-header :title="__('Archive this workspace?')" :description="__('Members will no longer be able to open it.')" />
 
-                <p class="text-sm text-dark-500 dark:text-dark-400">
-                    {{ __('Members will no longer be able to open it.') }}
-                </p>
-            </div>
+            <div class="flex justify-end gap-2">
+                <x-mane::button variant="ghost" :text="__('Cancel')" x-on:click="$tsui.close.modal('confirm-workspace-archive')" />
 
-            <div class="flex justify-end space-x-2 rtl:space-x-reverse">
-                <x-button flat :text="__('Cancel')" x-on:click="$tsui.close.modal('confirm-workspace-archive')" />
-
-                <x-button
-                    color="red"
+                <x-mane::button
+                    variant="danger"
                     wire:click="archiveWorkspace"
                     x-on:click="$tsui.close.modal('confirm-workspace-archive')"
-                    wire:loading.attr="disabled"
-                    wire:target="archiveWorkspace"
+                    loading="archiveWorkspace"
                     data-test="confirm-archive-workspace-button"
                     :text="__('Archive workspace')"
                 />
             </div>
         </div>
-    </x-modal>
+    </x-mane::modal>
 </section>

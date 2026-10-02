@@ -23,7 +23,7 @@
     />
 
     @if ($showName)
-        <span class="truncate text-sm font-medium text-dark-800 dark:text-white">
+        <span class="truncate text-sm font-medium text-fg">
             {{ config('app.name', 'Laravel') }}
         </span>
     @endif

@@ -1,0 +1,68 @@
+/*
+ |--------------------------------------------------------------------------
+ | ManeUI base: colour scheme, borders, focus and motion
+ |--------------------------------------------------------------------------
+ */
+
+@layer base {
+    :root {
+        color-scheme: light;
+    }
+
+    html.dark {
+        color-scheme: dark;
+    }
+
+    *,
+    ::after,
+    ::before,
+    ::backdrop,
+    ::file-selector-button {
+        border-color: var(--mane-line);
+    }
+
+    /*
+     | A visible focus for every keyboard target (§43, WCAG 2.4.7 and 2.4.11).
+     | Components that draw their own ring hide the outline with a utility,
+     | which wins over this base layer.
+     */
+    :focus-visible {
+        outline: 2px solid var(--mane-focus);
+        outline-offset: 2px;
+    }
+
+    [aria-disabled='true'] {
+        cursor: not-allowed;
+    }
+}
+
+/* Marketing typography: a section kicker and its display heading. */
+@utility mane-eyebrow {
+    font-family: var(--font-display);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--mane-brand);
+}
+
+@utility mane-display {
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 4vw, 2.9rem);
+    font-weight: 800;
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+    color: var(--mane-fg);
+}
+
+/* Reduced motion (§41, WCAG 2.3.3): animations and transitions collapse to an instant. */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    ::after,
+    ::before {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+    }
+}

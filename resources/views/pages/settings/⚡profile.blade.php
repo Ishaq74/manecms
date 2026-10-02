@@ -1,6 +1,7 @@
 <?php
 
 use App\Concerns\ProfileValidationRules;
+use App\Livewire\Concerns\HasFormContract;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
@@ -8,10 +9,9 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
-use TallStackUi\Traits\Interactions;
 
 new #[Layout('layouts::sidebar')] #[Title('Profile settings')] class extends Component {
-    use Interactions;
+    use HasFormContract;
     use ProfileValidationRules;
 
     public string $name = '';
@@ -21,6 +21,11 @@ new #[Layout('layouts::sidebar')] #[Title('Profile settings')] class extends Com
      * Mount the component.
      */
     public function mount(): void
+    {
+        $this->fillForm();
+    }
+
+    protected function fillForm(): void
     {
         $this->name = Auth::user()->name;
         $this->email = Auth::user()->email;
@@ -43,7 +48,7 @@ new #[Layout('layouts::sidebar')] #[Title('Profile settings')] class extends Com
 
         $user->save();
 
-        $this->toast()->success(__('Profile updated.'))->send();
+        $this->formSucceeded(__('Profile updated.'));
     }
 
     /**
@@ -78,49 +83,39 @@ new #[Layout('layouts::sidebar')] #[Title('Profile settings')] class extends Com
     }
 }; ?>
 
-<section class="w-full">
-    @include('partials.settings-heading')
+<x-pages::settings.layout :heading="__('Profile')" :subheading="__('Update your name and email address')">
+    <x-mane::form wire:submit="updateProfileInformation">
+        <x-mane::input wire:model="name" :label="__('Name')" type="text" required autofocus autocomplete="name" />
 
+        <x-mane::input wire:model="email" :label="__('Email')" type="email" required autocomplete="email" />
 
-    <x-pages::settings.layout :heading="__('Profile')" :subheading="__('Update your name and email address')">
-        <form wire:submit="updateProfileInformation" class="my-6 w-full space-y-6">
-            <x-input wire:model="name" :label="__('Name')" type="text" required autofocus autocomplete="name" />
+        @if ($this->hasUnverifiedEmail)
+            <x-mane::alert
+                tone="warning"
+                :title="__('Your email address is unverified.')"
+                :text="session('status') === 'verification-link-sent' ? __('A new verification link has been sent to your email address.') : null"
+            />
 
             <div>
-                <x-input wire:model="email" :label="__('Email')" type="email" required autocomplete="email" />
-
-                @if ($this->hasUnverifiedEmail)
-                    <div>
-                        <p class="mt-4 text-sm text-dark-600 dark:text-dark-400">
-                            {{ __('Your email address is unverified.') }}
-
-                            <button
-                                type="button"
-                                class="cursor-pointer text-sm underline"
-                                wire:click="resendVerificationNotification"
-                            >
-                                {{ __('Click here to re-send the verification email.') }}
-                            </button>
-                        </p>
-
-                        @if (session('status') === 'verification-link-sent')
-                            <p class="mt-2 text-sm font-medium text-secondary-600 dark:text-secondary-400">
-                                {{ __('A new verification link has been sent to your email address.') }}
-                            </p>
-                        @endif
-                    </div>
-                @endif
+                <x-mane::button
+                    variant="secondary"
+                    size="sm"
+                    wire:click="resendVerificationNotification"
+                    loading="resendVerificationNotification"
+                    :text="__('Click here to re-send the verification email.')"
+                />
             </div>
-
-            <div class="flex items-center gap-4">
-                <div class="flex items-center justify-end">
-                    <x-button submit block data-test="update-profile-button" :text="__('Save')" />
-                </div>
-            </div>
-        </form>
-
-        @if ($this->showDeleteUser)
-            <livewire:pages::settings.delete-user-form />
         @endif
-    </x-pages::settings.layout>
-</section>
+
+        <x-slot:actions>
+            <x-mane::button variant="ghost" wire:click="resetForm" :text="__('Discard changes')" data-test="reset-profile-form" />
+            <x-mane::button type="submit" loading="updateProfileInformation" data-test="update-profile-button" :text="__('Save')" />
+        </x-slot:actions>
+    </x-mane::form>
+
+    @if ($this->showDeleteUser)
+        <x-mane::divider />
+
+        <livewire:pages::settings.delete-user-form />
+    @endif
+</x-pages::settings.layout>
