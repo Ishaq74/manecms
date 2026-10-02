@@ -22,6 +22,7 @@ class TenancyServiceProvider extends ServiceProvider
     private const array OWNER_COMMANDS = [
         'authorization:sync-permissions', 'db:seed', 'db:wipe', 'migrate', 'migrate:fresh', 'migrate:install',
         'migrate:refresh', 'migrate:reset', 'migrate:rollback', 'migrate:status',
+        'platform:grant-operator', 'platform:revoke-operator',
     ];
 
     private ?string $connectionBeforeOwnerCommand = null;

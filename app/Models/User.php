@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Domain\Platform\Enums\PlatformRole;
 use App\Domain\Tenancy\Models\TenantMember;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -27,6 +28,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property string|null $two_factor_recovery_codes
  * @property Carbon|null $two_factor_confirmed_at
  * @property string|null $remember_token
+ * @property PlatformRole|null $platform_role
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
@@ -47,6 +49,7 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'platform_role' => PlatformRole::class,
         ];
     }
 
@@ -56,6 +59,11 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
     public function tenantMemberships(): HasMany
     {
         return $this->hasMany(TenantMember::class);
+    }
+
+    public function isPlatformOperator(): bool
+    {
+        return $this->platform_role === PlatformRole::Operator;
     }
 
     /**

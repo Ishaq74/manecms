@@ -21,6 +21,7 @@ return [
         'jobs' => 'Platform',
         'migrations' => 'Platform',
 
+        'impersonations' => 'Platform',
         'saved_table_views' => 'Platform',
 
         'passkeys' => 'Identity',

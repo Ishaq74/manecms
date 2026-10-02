@@ -147,6 +147,10 @@ final readonly class PolicyEngine
             return DenialReason::TenantArchived;
         }
 
+        if ($this->context->tenant()->isSuspended()) {
+            return DenialReason::TenantSuspended;
+        }
+
         $workspace ??= $this->context->workspace();
 
         if ($workspace->tenant_id !== $member->tenant_id || ! $member->allowsWorkspace($workspace->id)) {

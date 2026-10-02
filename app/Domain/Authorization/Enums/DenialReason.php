@@ -12,6 +12,7 @@ enum DenialReason: string
     case NoTenantContext = 'no_tenant_context';
     case ActorMismatch = 'actor_mismatch';
     case TenantArchived = 'tenant_archived';
+    case TenantSuspended = 'tenant_suspended';
     case WorkspaceRestricted = 'workspace_restricted';
     case NotGrantable = 'not_grantable';
     case MissingPermission = 'missing_permission';

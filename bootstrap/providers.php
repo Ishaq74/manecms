@@ -6,6 +6,7 @@ use App\Providers\FortifyServiceProvider;
 use App\Providers\HorizonServiceProvider;
 use App\Providers\IdentityServiceProvider;
 use App\Providers\ObservabilityServiceProvider;
+use App\Providers\PlatformServiceProvider;
 use App\Providers\TallStackUiServiceProvider;
 use App\Providers\TenancyServiceProvider;
 
@@ -16,6 +17,7 @@ return [
     HorizonServiceProvider::class,
     IdentityServiceProvider::class,
     ObservabilityServiceProvider::class,
+    PlatformServiceProvider::class,
     TallStackUiServiceProvider::class,
     TenancyServiceProvider::class,
 ];

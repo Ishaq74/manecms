@@ -2,6 +2,7 @@
 
 use App\Domain\Platform\Errors\DomainError;
 use App\Domain\Platform\Http\Middleware\AssignCorrelationId;
+use App\Domain\Platform\Http\Middleware\GuardImpersonation;
 use App\Domain\Platform\Observability\RequestContext;
 use App\Domain\Tenancy\Http\Middleware\ScopeDatabaseSession;
 use Illuminate\Database\QueryException;
@@ -22,7 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->prepend(AssignCorrelationId::class);
-        $middleware->web(append: [ScopeDatabaseSession::class]);
+        $middleware->web(append: [ScopeDatabaseSession::class, GuardImpersonation::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

@@ -1,5 +1,6 @@
 <?php
 
+use App\Domain\Audit\Models\AuditEvent;
 use App\Domain\Authorization\Enums\SystemRole;
 use App\Domain\Tenancy\Context\TenantContext;
 use App\Domain\Tenancy\Database\TenantDatabaseContext;
@@ -104,4 +105,12 @@ function enterWorkspace(TenantMember $member, Workspace $workspace): void
 function asOwner(Closure $callback): mixed
 {
     return app(TenantDatabaseContext::class)->withoutRowSecurity($callback);
+}
+
+/**
+ * The latest audit event of an action, read as the owner (platform events have no tenant).
+ */
+function platformAudit(string $action): ?AuditEvent
+{
+    return asOwner(fn (): ?AuditEvent => AuditEvent::query()->where('action', $action)->latest('occurred_at')->first());
 }

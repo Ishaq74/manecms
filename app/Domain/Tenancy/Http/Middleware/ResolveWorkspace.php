@@ -3,6 +3,7 @@
 namespace App\Domain\Tenancy\Http\Middleware;
 
 use App\Domain\Tenancy\Context\TenantContext;
+use App\Domain\Tenancy\Exceptions\TenantSuspended;
 use App\Domain\Tenancy\Models\Workspace;
 use App\Models\User;
 use Closure;
@@ -23,6 +24,8 @@ final readonly class ResolveWorkspace
 
     /**
      * @param  Closure(Request): Response  $next
+     *
+     * @throws TenantSuspended
      */
     public function handle(Request $request, Closure $next): Response
     {
@@ -41,6 +44,10 @@ final readonly class ResolveWorkspace
         // A member restricted to other workspaces cannot tell this one exists either.
         if ($workspace === null || $member === null || $member->tenant->isArchived() || ! $member->allowsWorkspace($workspace->id)) {
             abort(404);
+        }
+
+        if ($member->tenant->isSuspended()) {
+            throw new TenantSuspended($member->tenant->suspension_reason);
         }
 
         $this->context->install($member, $workspace);

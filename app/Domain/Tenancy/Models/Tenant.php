@@ -22,6 +22,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property string $name
  * @property bool $require_mfa
  * @property CarbonImmutable|null $archived_at
+ * @property CarbonImmutable|null $suspended_at
+ * @property string|null $suspension_reason
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  * @property-read TenantMember|null $owner
@@ -42,6 +44,7 @@ class Tenant extends Model
         return [
             'require_mfa' => 'boolean',
             'archived_at' => 'datetime',
+            'suspended_at' => 'datetime',
         ];
     }
 
@@ -91,6 +94,11 @@ class Tenant extends Model
     public function invitations(): HasMany
     {
         return $this->hasMany(TenantInvitation::class);
+    }
+
+    public function isSuspended(): bool
+    {
+        return $this->suspended_at !== null;
     }
 
     public function isArchived(): bool

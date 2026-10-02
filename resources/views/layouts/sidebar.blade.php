@@ -7,6 +7,8 @@
         @include('partials.head')
     </head>
     <body class="min-h-svh bg-surface text-fg antialiased">
+        <x-impersonation-banner />
+
         <x-mane::layout>
             <x-slot:menu>
                 <x-mane::sidebar>

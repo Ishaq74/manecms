@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Domain\Platform\Enums\PlatformRole;
+use App\Domain\Tenancy\Database\TenantDatabaseContext;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
@@ -44,6 +46,20 @@ class UserFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
         ]);
+    }
+
+    /**
+     * A platform operator. Tests write the role as the table owner, like the platform:* commands.
+     */
+    public function operator(): static
+    {
+        return $this->afterCreating(function (User $user): void {
+            app(TenantDatabaseContext::class)->withoutRowSecurity(
+                fn (): int => User::query()->whereKey($user->id)->update(['platform_role' => PlatformRole::Operator->value]),
+            );
+
+            $user->forceFill(['platform_role' => PlatformRole::Operator])->syncOriginal();
+        });
     }
 
     /**
